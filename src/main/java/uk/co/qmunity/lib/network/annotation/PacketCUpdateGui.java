@@ -1,26 +1,18 @@
 package uk.co.qmunity.lib.network.annotation;
 
 import io.netty.buffer.ByteBuf;
-
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
 import uk.co.qmunity.lib.inventory.ContainerBase;
 import uk.co.qmunity.lib.network.Packet;
-import uk.co.qmunity.lib.network.annotation.SyncedField.SyncedBoolean;
-import uk.co.qmunity.lib.network.annotation.SyncedField.SyncedDouble;
-import uk.co.qmunity.lib.network.annotation.SyncedField.SyncedEnum;
-import uk.co.qmunity.lib.network.annotation.SyncedField.SyncedFloat;
-import uk.co.qmunity.lib.network.annotation.SyncedField.SyncedFluidTank;
-import uk.co.qmunity.lib.network.annotation.SyncedField.SyncedInt;
-import uk.co.qmunity.lib.network.annotation.SyncedField.SyncedItemStack;
-import uk.co.qmunity.lib.network.annotation.SyncedField.SyncedString;
-import cpw.mods.fml.common.network.ByteBufUtils;
+import uk.co.qmunity.lib.network.annotation.SyncedField.*;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 
 /**
  * @author MineMaarten
@@ -71,7 +63,7 @@ public class PacketCUpdateGui extends Packet<PacketCUpdateGui>{
                 return ByteBufUtils.readItemStack(buf);
             case 7:
                 if(!buf.readBoolean()) return null;
-                return new FluidStack(buf.readInt(), buf.readInt(), ByteBufUtils.readTag(buf));
+                return FluidStack.loadFluidStackFromNBT(ByteBufUtils.readTag(buf));
         }
         throw new IllegalArgumentException("Invalid sync type! " + type);
     }
@@ -103,9 +95,7 @@ public class PacketCUpdateGui extends Packet<PacketCUpdateGui>{
                 buf.writeBoolean(value != null);
                 if(value != null) {
                     FluidStack stack = (FluidStack)value;
-                    buf.writeInt(stack.getFluid().getID());
-                    buf.writeInt(stack.amount);
-                    ByteBufUtils.writeTag(buf, stack.tag);
+                    stack.writeToNBT(ByteBufUtils.readTag(buf));
                 }
                 break;
         }

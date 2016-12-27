@@ -1,23 +1,21 @@
 package uk.co.qmunity.lib.tile;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
-import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ITickable;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import uk.co.qmunity.lib.network.annotation.DescPacketHandler;
 import uk.co.qmunity.lib.network.annotation.DescSynced;
 import uk.co.qmunity.lib.network.annotation.NetworkUtils;
-import uk.co.qmunity.lib.network.annotation.PacketDescription;
 import uk.co.qmunity.lib.network.annotation.SyncedField;
 import uk.co.qmunity.lib.util.QLog;
 import uk.co.qmunity.lib.vec.IWorldLocation;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Base tile entity which provides you a few options. Notably, if you mark a field with @DescSynced, it will be automatically synchronize
@@ -27,12 +25,12 @@ import uk.co.qmunity.lib.vec.IWorldLocation;
  * the container open that is associated with this tile entity. Be sure to extend your Container to ContainerBase!
  * @author MineMaarten
  */
-public class TileBase extends TileEntity implements IRotatable, IWorldLocation{
+public class TileBase extends TileEntity implements IRotatable, IWorldLocation, ITickable{
 
     private boolean isRedstonePowered;
     private int outputtingRedstone;
     private int ticker = 0;
-    private ForgeDirection rotation = ForgeDirection.UP;
+    private EnumFacing rotation = EnumFacing.UP;
     private List<SyncedField> descriptionFields;
 
     /*************** BASIC TE FUNCTIONS **************/
@@ -52,12 +50,14 @@ public class TileBase extends TileEntity implements IRotatable, IWorldLocation{
      * This function gets called whenever the world/chunk is saved
      */
     @Override
-    public void writeToNBT(NBTTagCompound tCompound){
+    public NBTTagCompound writeToNBT(NBTTagCompound tCompound){
 
         super.writeToNBT(tCompound);
         tCompound.setBoolean("isRedstonePowered", isRedstonePowered);
 
         writeToPacketNBT(tCompound);
+
+        return tCompound;
     }
 
     /**
@@ -73,13 +73,13 @@ public class TileBase extends TileEntity implements IRotatable, IWorldLocation{
 
     public void readFromPacketNBT(NBTTagCompound tCompound){
 
-        rotation = ForgeDirection.getOrientation(tCompound.getByte("rotation"));
+        rotation = EnumFacing.getFront(tCompound.getByte("rotation"));
         if(rotation.ordinal() > 5) {
             QLog.warning("invalid rotation!");
-            rotation = ForgeDirection.UP;
+            rotation = EnumFacing.UP;
         }
         outputtingRedstone = tCompound.getByte("outputtingRedstone");
-        if(worldObj != null) markForRenderUpdate();
+        if(world != null) markForRenderUpdate();
     }
 
     public List<SyncedField> getDescriptionFields(){
@@ -93,44 +93,38 @@ public class TileBase extends TileEntity implements IRotatable, IWorldLocation{
     }
 
     @Override
-    public Packet getDescriptionPacket(){
-        return DescPacketHandler.getPacket(new PacketDescription(this));
-    }
+    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt){
 
-    @Override
-    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt){
-
-        readFromPacketNBT(pkt.func_148857_g());
+        readFromPacketNBT(pkt.getNbtCompound());
     }
 
     protected void sendUpdatePacket(){
 
-        if(!worldObj.isRemote) worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+        if(!world.isRemote) world.markChunkDirty(pos, this);
     }
 
     protected void markForRenderUpdate(){
 
-        if(worldObj != null) worldObj.markBlockRangeForRenderUpdate(xCoord, yCoord, zCoord, xCoord, yCoord, zCoord);
+        if(world != null) world.markBlockRangeForRenderUpdate(getX(), getY(), getZ(), getX(), getY(), getZ());
     }
 
     protected void notifyNeighborBlockUpdate(){
 
-        worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, getBlockType());
+        world.notifyBlockUpdate(pos, getBlockType().getDefaultState(), world.getBlockState(pos), 0);
     }
 
     /**
      * Function gets called every tick. Do not forget to call the super method!
      */
     @Override
-    public void updateEntity(){
+    public void update(){
 
         if(ticker == 0) {
             onTileLoaded();
         }
-        super.updateEntity();
         ticker++;
 
-        if(!worldObj.isRemote) {
+        if(!world.isRemote) {
             boolean descriptionPacketScheduled = false;
             if(descriptionFields == null) descriptionPacketScheduled = true;
             for(SyncedField field : getDescriptionFields()) {
@@ -159,7 +153,7 @@ public class TileBase extends TileEntity implements IRotatable, IWorldLocation{
      */
     public void checkRedstonePower(){
 
-        boolean isIndirectlyPowered = getWorldObj().isBlockIndirectlyGettingPowered(xCoord, yCoord, zCoord);
+        boolean isIndirectlyPowered = (getWorld().isBlockIndirectlyGettingPowered(getPos()) != 0);
         if(isIndirectlyPowered && !getIsRedstonePowered()) {
             redstoneChanged(true);
         } else if(getIsRedstonePowered() && !isIndirectlyPowered) {
@@ -231,7 +225,7 @@ public class TileBase extends TileEntity implements IRotatable, IWorldLocation{
      */
     protected void onTileLoaded(){
 
-        if(!worldObj.isRemote) onBlockNeighbourChanged();
+        if(!getWorld().isRemote) onBlockNeighbourChanged();
     }
 
     public List<ItemStack> getDrops(){
@@ -240,17 +234,17 @@ public class TileBase extends TileEntity implements IRotatable, IWorldLocation{
     }
 
     @Override
-    public void setFacingDirection(ForgeDirection dir){
+    public void setFacingDirection(EnumFacing dir){
 
         rotation = dir;
-        if(worldObj != null) {
+        if(getWorld() != null) {
             sendUpdatePacket();
             notifyNeighborBlockUpdate();
         }
     }
 
     @Override
-    public ForgeDirection getFacingDirection(){
+    public EnumFacing getFacingDirection(){
 
         return rotation;
     }
@@ -266,21 +260,21 @@ public class TileBase extends TileEntity implements IRotatable, IWorldLocation{
 
     @Override
     public World getWorld(){
-        return worldObj;
+        return getWorld();
     }
 
     @Override
     public int getX(){
-        return xCoord;
+        return pos.getX();
     }
 
     @Override
     public int getY(){
-        return yCoord;
+        return pos.getY();
     }
 
     @Override
     public int getZ(){
-        return zCoord;
+        return pos.getZ();
     }
 }

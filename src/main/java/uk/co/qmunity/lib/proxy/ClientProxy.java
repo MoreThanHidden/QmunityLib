@@ -2,21 +2,12 @@ package uk.co.qmunity.lib.proxy;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.common.MinecraftForge;
-
+import net.minecraftforge.fml.client.registry.RenderingRegistry;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
-
-import uk.co.qmunity.lib.client.renderer.RenderMultipart;
-import uk.co.qmunity.lib.client.renderer.RenderPartPlacement;
 import uk.co.qmunity.lib.client.renderer.RenderParticle;
 import uk.co.qmunity.lib.effect.EntityFXParticle;
-import uk.co.qmunity.lib.tile.TileMultipart;
-import cpw.mods.fml.client.registry.ClientRegistry;
-import cpw.mods.fml.client.registry.RenderingRegistry;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
 @SideOnly(Side.CLIENT)
 public class ClientProxy extends CommonProxy {
 
@@ -25,19 +16,12 @@ public class ClientProxy extends CommonProxy {
 
         RenderingRegistry.registerEntityRenderingHandler(EntityFXParticle.class, new RenderParticle());
 
-        RenderMultipart multipartRenderer = new RenderMultipart();
-        RenderingRegistry.registerBlockHandler(multipartRenderer);
-        ClientRegistry.bindTileEntitySpecialRenderer(TileMultipart.class, multipartRenderer);
-
-        RenderPartPlacement renderPartPlacement = new RenderPartPlacement();
-        FMLCommonHandler.instance().bus().register(renderPartPlacement);
-        MinecraftForge.EVENT_BUS.register(renderPartPlacement);
     }
 
     @Override
     public EntityPlayer getPlayer() {
 
-        return Minecraft.getMinecraft().thePlayer;
+        return Minecraft.getMinecraft().player;
     }
 
     @Override

@@ -7,7 +7,7 @@ public class QLModInfo{
     private static final String MAJOR = "@MAJOR@";
     private static final String MINOR = "@MINOR@";
     private static final String BUILD = "@BUILD_NUMBER@";
-    private static final String MCVERSION = "1.7.10";
+    private static final String MCVERSION = "1.11";
 
     public static String fullVersionString(){
 

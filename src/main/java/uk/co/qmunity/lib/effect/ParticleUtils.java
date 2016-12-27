@@ -9,7 +9,7 @@ public class ParticleUtils {
         if (particle.parent != null)
             return;
 
-        w.spawnEntityInWorld(new EntityFXParticle(w, x, y, z, particle));
+        w.spawnEntity(new EntityFXParticle(w, x, y, z, particle));
     }
 
 }

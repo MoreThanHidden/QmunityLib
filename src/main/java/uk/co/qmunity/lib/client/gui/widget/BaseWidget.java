@@ -1,14 +1,14 @@
 package uk.co.qmunity.lib.client.gui.widget;
 
-import java.awt.Rectangle;
-import java.util.List;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.util.ResourceLocation;
-
 import org.lwjgl.opengl.GL11;
+
+import java.awt.*;
+import java.util.List;
 
 /**
  * @author MineMaarten
@@ -69,7 +69,7 @@ public class BaseWidget implements IGuiWidget {
         }
         if (textures.length > 0)
             Minecraft.getMinecraft().getTextureManager().bindTexture(textures[textureIndex]);
-        Gui.func_146110_a(x, y, getTextureU(), getTextureV(), width, height, getTextureWidth(), getTextureHeight());
+        Gui.drawModalRectWithCustomSizedTexture(x, y, getTextureU(), getTextureV(), width, height, getTextureWidth(), getTextureHeight());
     }
 
     protected int getTextureU() {
@@ -96,7 +96,7 @@ public class BaseWidget implements IGuiWidget {
     public void onMouseClicked(int mouseX, int mouseY, int button) {
 
         Minecraft.getMinecraft().getSoundHandler()
-                .playSound(PositionedSoundRecord.func_147674_a(new ResourceLocation("gui.button.press"), 1.0F));
+                .playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
         gui.actionPerformed(this);
     }
 

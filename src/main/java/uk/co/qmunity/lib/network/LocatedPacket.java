@@ -1,15 +1,14 @@
 package uk.co.qmunity.lib.network;
 
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import uk.co.qmunity.lib.vec.IWorldLocation;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
-import uk.co.qmunity.lib.helper.BlockPos;
-import uk.co.qmunity.lib.vec.IWorldLocation;
-import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 
 public abstract class LocatedPacket<T extends LocatedPacket<T>> extends Packet<T>{
 
@@ -56,13 +55,13 @@ public abstract class LocatedPacket<T extends LocatedPacket<T>> extends Packet<T
         buffer.writeInt(z);
     }
 
-    public TargetPoint getTargetPoint(World world, double range){
+    public NetworkRegistry.TargetPoint getTargetPoint(World world, double range){
 
-        return new NetworkRegistry.TargetPoint(world.provider.dimensionId, x, y, z, range);
+        return new NetworkRegistry.TargetPoint(world.provider.getDimension(), x, y, z, range);
     }
 
     protected TileEntity getTileEntity(World world){
-        return world.getTileEntity(x, y, z);
+        return world.getTileEntity(new BlockPos(x, y, z));
     }
 
 }

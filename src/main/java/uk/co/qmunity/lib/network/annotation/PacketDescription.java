@@ -1,15 +1,14 @@
 package uk.co.qmunity.lib.network.annotation;
 
 import io.netty.buffer.ByteBuf;
-
-import java.util.List;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
 import uk.co.qmunity.lib.network.LocatedPacket;
 import uk.co.qmunity.lib.tile.TileBase;
-import cpw.mods.fml.common.network.ByteBufUtils;
+
+import java.util.List;
 
 /**
  * @author MineMaarten
@@ -23,7 +22,7 @@ public class PacketDescription extends LocatedPacket<PacketDescription>{
     public PacketDescription(){}
 
     public PacketDescription(TileBase te){
-        super(te.xCoord, te.yCoord, te.zCoord);
+        super(te.getX(), te.getY(), te.getZ());
         values = new Object[te.getDescriptionFields().size()];
         types = new byte[values.length];
         for(int i = 0; i < values.length; i++) {
@@ -60,7 +59,7 @@ public class PacketDescription extends LocatedPacket<PacketDescription>{
 
     @Override
     public void handleClientSide(EntityPlayer player){
-        TileEntity te = getTileEntity(player.worldObj);
+        TileEntity te = getTileEntity(player.getEntityWorld());
         if(te instanceof TileBase) {
             List<SyncedField> descFields = ((TileBase)te).getDescriptionFields();
             if(descFields != null && descFields.size() == types.length) {

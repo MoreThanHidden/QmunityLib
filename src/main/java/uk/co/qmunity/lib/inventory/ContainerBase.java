@@ -1,17 +1,17 @@
 package uk.co.qmunity.lib.inventory;
 
-import java.util.List;
-
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
-import net.minecraft.inventory.ICrafting;
+import net.minecraft.inventory.IContainerListener;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import uk.co.qmunity.lib.network.NetworkHandler;
 import uk.co.qmunity.lib.network.annotation.GuiSynced;
 import uk.co.qmunity.lib.network.annotation.NetworkUtils;
 import uk.co.qmunity.lib.network.annotation.PacketCUpdateGui;
 import uk.co.qmunity.lib.network.annotation.SyncedField;
 import uk.co.qmunity.lib.tile.TileBase;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
+
+import java.util.List;
 
 /**
  * Use this container when you want to use @GuiSynced on your tile entity fields.
@@ -47,7 +47,7 @@ public abstract class ContainerBase<Tile extends TileBase> extends Container{
     }
 
     protected void sendToCrafters(IMessage message){
-        for(ICrafting crafter : (List<ICrafting>)crafters) {
+        for(IContainerListener crafter : listeners) {
             if(crafter instanceof EntityPlayerMP) {
                 NetworkHandler.QLIB.sendTo(message, (EntityPlayerMP)crafter);
             }

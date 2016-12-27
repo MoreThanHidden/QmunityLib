@@ -1,9 +1,5 @@
 package uk.co.qmunity.lib.client.gui;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.resources.I18n;
@@ -11,17 +7,15 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StatCollector;
-
 import org.apache.commons.lang3.text.WordUtils;
 import org.lwjgl.opengl.GL11;
-
 import uk.co.qmunity.lib.QmunityLib;
-import uk.co.qmunity.lib.client.gui.widget.BaseWidget;
-import uk.co.qmunity.lib.client.gui.widget.GuiAnimatedStat;
-import uk.co.qmunity.lib.client.gui.widget.IGuiAnimatedStat;
-import uk.co.qmunity.lib.client.gui.widget.IGuiWidget;
-import uk.co.qmunity.lib.client.gui.widget.IWidgetListener;
+import uk.co.qmunity.lib.client.gui.widget.*;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author MineMaarten
@@ -118,9 +112,9 @@ public class GuiContainerBase extends GuiContainer implements IWidgetListener {
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
 
-        fontRendererObj.drawString(StatCollector.translateToLocal("container.inventory"), 8, ySize - 94 + 2, COLOR_TEXT);
+        fontRendererObj.drawString(I18n.format("container.inventory"), 8, ySize - 94 + 2, COLOR_TEXT);
         if (inventory != null) {
-            drawHorizontalAlignedString(7, 5, xSize - 14, I18n.format(inventory.getInventoryName() + ".name"), false);
+            drawHorizontalAlignedString(7, 5, xSize - 14, I18n.format(inventory.getName() + ".name"), false);
         }
     }
 
@@ -167,7 +161,11 @@ public class GuiContainerBase extends GuiContainer implements IWidgetListener {
     @Override
     protected void mouseClicked(int x, int y, int button) {
 
-        super.mouseClicked(x, y, button);
+        try {
+            super.mouseClicked(x, y, button);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         for (IGuiWidget widget : widgets) {
             if (widget.getBounds().contains(x, y) && (!(widget instanceof BaseWidget) || ((BaseWidget) widget).enabled))
                 widget.onMouseClicked(x, y, button);

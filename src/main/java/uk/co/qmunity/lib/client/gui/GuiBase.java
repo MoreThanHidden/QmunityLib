@@ -1,20 +1,19 @@
 package uk.co.qmunity.lib.client.gui;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
-
 import org.apache.commons.lang3.text.WordUtils;
 import org.lwjgl.opengl.GL11;
-
 import uk.co.qmunity.lib.QmunityLib;
 import uk.co.qmunity.lib.client.gui.widget.BaseWidget;
 import uk.co.qmunity.lib.client.gui.widget.IGuiWidget;
 import uk.co.qmunity.lib.client.gui.widget.IWidgetListener;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author MineMaarten
@@ -128,7 +127,11 @@ public class GuiBase extends GuiScreen implements IWidgetListener {
     @Override
     protected void mouseClicked(int x, int y, int button) {
 
-        super.mouseClicked(x, y, button);
+        try {
+            super.mouseClicked(x, y, button);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         for (IGuiWidget widget : widgets) {
             if (widget.getBounds().contains(x, y) && (!(widget instanceof BaseWidget) || ((BaseWidget) widget).enabled))
                 widget.onMouseClicked(x, y, button);

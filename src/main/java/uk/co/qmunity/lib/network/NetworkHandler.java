@@ -2,16 +2,13 @@ package uk.co.qmunity.lib.network;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.relauncher.Side;
 import uk.co.qmunity.lib.QLModInfo;
 import uk.co.qmunity.lib.network.annotation.DescPacketHandler;
 import uk.co.qmunity.lib.network.annotation.PacketCUpdateGui;
-import uk.co.qmunity.lib.network.packet.PacketCAddPart;
-import uk.co.qmunity.lib.network.packet.PacketCRemovePart;
-import uk.co.qmunity.lib.network.packet.PacketCUpdatePart;
-import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import cpw.mods.fml.relauncher.Side;
 
 public class NetworkHandler{
 
@@ -28,9 +25,6 @@ public class NetworkHandler{
     public static void initQLib(){
         new DescPacketHandler();
         QLIB.registerPacket(PacketCUpdateGui.class, Side.CLIENT);
-        QLIB.registerPacket(PacketCAddPart.class, Side.CLIENT);
-        QLIB.registerPacket(PacketCRemovePart.class, Side.CLIENT);
-        QLIB.registerPacket(PacketCUpdatePart.class, Side.CLIENT);
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -58,13 +52,13 @@ public class NetworkHandler{
     @SuppressWarnings("rawtypes")
     public void sendToAllAround(LocatedPacket packet, World world, double range){
 
-        sendToAllAround(packet, packet.getTargetPoint(world, range));
+        sendToAllAround((IMessage) packet, packet.getTargetPoint(world, range));
     }
 
     @SuppressWarnings("rawtypes")
     public void sendToAllAround(LocatedPacket packet, World world){
 
-        sendToAllAround(packet, packet.getTargetPoint(world, 64));
+        sendToAllAround((IMessage)packet, packet.getTargetPoint(world, 64));
     }
 
     public void sendToAllAround(IMessage packet, NetworkRegistry.TargetPoint point){

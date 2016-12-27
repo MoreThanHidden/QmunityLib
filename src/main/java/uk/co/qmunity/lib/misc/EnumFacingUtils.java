@@ -1,19 +1,19 @@
 package uk.co.qmunity.lib.misc;
 
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraft.util.EnumFacing;
 
-public class ForgeDirectionUtils {
+public class EnumFacingUtils {
 
     /**
-     * Returns the ForgeDirection of the facing of the entity given.
+     * Returns the EnumFacing of the facing of the entity given.
      *
      * @param entity
      * @param includeUpAndDown
      *            false when UP/DOWN should not be included.
      * @return
      */
-    public static ForgeDirection getDirectionFacing(EntityLivingBase entity, boolean includeUpAndDown) {
+    public static EnumFacing getDirectionFacing(EntityLivingBase entity, boolean includeUpAndDown) {
 
         double yaw = entity.rotationYaw;
         while (yaw < 0)
@@ -21,46 +21,46 @@ public class ForgeDirectionUtils {
         yaw = yaw % 360;
         if (includeUpAndDown) {
             if (entity.rotationPitch > 45)
-                return ForgeDirection.DOWN;
+                return EnumFacing.DOWN;
             else if (entity.rotationPitch < -45)
-                return ForgeDirection.UP;
+                return EnumFacing.UP;
         }
         if (yaw < 45)
-            return ForgeDirection.SOUTH;
+            return EnumFacing.SOUTH;
         else if (yaw < 135)
-            return ForgeDirection.WEST;
+            return EnumFacing.WEST;
         else if (yaw < 225)
-            return ForgeDirection.NORTH;
+            return EnumFacing.NORTH;
         else if (yaw < 315)
-            return ForgeDirection.EAST;
+            return EnumFacing.EAST;
 
         else
-            return ForgeDirection.SOUTH;
+            return EnumFacing.SOUTH;
     }
 
-    public static ForgeDirection getOnFace(ForgeDirection face, ForgeDirection dir) {
+    public static EnumFacing getOnFace(EnumFacing face, EnumFacing dir) {
 
         switch (face) {
         case DOWN:
             return dir;
         case UP:
-            if (dir == ForgeDirection.UP || dir == ForgeDirection.DOWN)
+            if (dir == EnumFacing.UP || dir == EnumFacing.DOWN)
                 return dir.getOpposite();
             return dir;
         case WEST:
             switch (dir) {
             case DOWN:
-                return ForgeDirection.WEST;
+                return EnumFacing.WEST;
             case UP:
-                return ForgeDirection.EAST;
+                return EnumFacing.EAST;
             case WEST:
-                return ForgeDirection.DOWN;
+                return EnumFacing.DOWN;
             case EAST:
-                return ForgeDirection.UP;
+                return EnumFacing.UP;
             case NORTH:
-                return ForgeDirection.NORTH;
+                return EnumFacing.NORTH;
             case SOUTH:
-                return ForgeDirection.SOUTH;
+                return EnumFacing.SOUTH;
             default:
                 break;
             }
@@ -68,17 +68,17 @@ public class ForgeDirectionUtils {
         case EAST:
             switch (dir) {
             case DOWN:
-                return ForgeDirection.EAST;
+                return EnumFacing.EAST;
             case UP:
-                return ForgeDirection.WEST;
+                return EnumFacing.WEST;
             case WEST:
-                return ForgeDirection.DOWN;
+                return EnumFacing.DOWN;
             case EAST:
-                return ForgeDirection.UP;
+                return EnumFacing.UP;
             case NORTH:
-                return ForgeDirection.NORTH;
+                return EnumFacing.NORTH;
             case SOUTH:
-                return ForgeDirection.SOUTH;
+                return EnumFacing.SOUTH;
             default:
                 break;
             }
@@ -86,17 +86,17 @@ public class ForgeDirectionUtils {
         case NORTH:
             switch (dir) {
             case DOWN:
-                return ForgeDirection.NORTH;
+                return EnumFacing.NORTH;
             case UP:
-                return ForgeDirection.SOUTH;
+                return EnumFacing.SOUTH;
             case WEST:
-                return ForgeDirection.WEST;
+                return EnumFacing.WEST;
             case EAST:
-                return ForgeDirection.EAST;
+                return EnumFacing.EAST;
             case NORTH:
-                return ForgeDirection.DOWN;
+                return EnumFacing.DOWN;
             case SOUTH:
-                return ForgeDirection.UP;
+                return EnumFacing.UP;
             default:
                 break;
             }
@@ -104,17 +104,17 @@ public class ForgeDirectionUtils {
         case SOUTH:
             switch (dir) {
             case DOWN:
-                return ForgeDirection.SOUTH;
+                return EnumFacing.SOUTH;
             case UP:
-                return ForgeDirection.NORTH;
+                return EnumFacing.NORTH;
             case WEST:
-                return ForgeDirection.WEST;
+                return EnumFacing.WEST;
             case EAST:
-                return ForgeDirection.EAST;
+                return EnumFacing.EAST;
             case NORTH:
-                return ForgeDirection.DOWN;
+                return EnumFacing.DOWN;
             case SOUTH:
-                return ForgeDirection.UP;
+                return EnumFacing.UP;
             default:
                 break;
             }

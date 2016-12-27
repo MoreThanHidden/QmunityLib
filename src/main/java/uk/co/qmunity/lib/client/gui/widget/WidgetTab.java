@@ -1,12 +1,11 @@
 package uk.co.qmunity.lib.client.gui.widget;
 
-import java.util.Arrays;
-import java.util.List;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-
 import org.lwjgl.opengl.GL11;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class WidgetTab extends BaseWidget {
 
@@ -49,7 +48,7 @@ public class WidgetTab extends BaseWidget {
                     GL11.glColor4d(0.2, 0.2, 0.2, 1);
                 }
             }
-            Gui.func_146110_a(x, y + singleTabHeight * i, getTextureU(), getTextureV() + singleTabHeight * i, width, singleTabHeight, 256,
+            Gui.drawModalRectWithCustomSizedTexture(x, y + singleTabHeight * i, getTextureU(), getTextureV() + singleTabHeight * i, width, singleTabHeight, 256,
                     256);
         }
     }

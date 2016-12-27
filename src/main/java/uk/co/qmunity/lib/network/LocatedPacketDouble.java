@@ -1,12 +1,12 @@
 package uk.co.qmunity.lib.network;
 
+import net.minecraft.world.World;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import uk.co.qmunity.lib.vec.IWorldLocation;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-
-import net.minecraft.world.World;
-import uk.co.qmunity.lib.vec.IWorldLocation;
-import cpw.mods.fml.common.network.NetworkRegistry;
 
 public abstract class LocatedPacketDouble<T extends LocatedPacket<T>> extends Packet<T> {
 
@@ -53,7 +53,7 @@ public abstract class LocatedPacketDouble<T extends LocatedPacket<T>> extends Pa
 
     public NetworkRegistry.TargetPoint getTargetPoint(World world, double updateDistance) {
 
-        return new NetworkRegistry.TargetPoint(world.provider.dimensionId, x, y, z, updateDistance);
+        return new NetworkRegistry.TargetPoint(world.provider.getDimension(), x, y, z, updateDistance);
     }
 
 }

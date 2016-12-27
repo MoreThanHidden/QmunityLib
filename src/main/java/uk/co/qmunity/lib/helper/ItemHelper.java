@@ -2,6 +2,7 @@ package uk.co.qmunity.lib.helper;
 
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class ItemHelper {
@@ -26,7 +27,7 @@ public class ItemHelper {
         entityItem.motionX = world.rand.nextGaussian() * factor;
         entityItem.motionY = world.rand.nextGaussian() * factor + 0.2F;
         entityItem.motionZ = world.rand.nextGaussian() * factor;
-        world.spawnEntityInWorld(entityItem);
-        itemStack.stackSize = 0;
+        world.spawnEntity(entityItem);
+        itemStack.setCount(0);
     }
 }

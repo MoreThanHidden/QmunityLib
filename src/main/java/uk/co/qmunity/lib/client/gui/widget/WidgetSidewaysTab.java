@@ -1,12 +1,11 @@
 package uk.co.qmunity.lib.client.gui.widget;
 
-import java.util.Arrays;
-import java.util.List;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-
 import org.lwjgl.opengl.GL11;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class WidgetSidewaysTab extends BaseWidget {
 
@@ -49,7 +48,7 @@ public class WidgetSidewaysTab extends BaseWidget {
                     GL11.glColor4d(0.2, 0.2, 0.2, 1);
                 }
             }
-            Gui.func_146110_a(x + singleTabWidth * i, y, getTextureU(), getTextureV() + singleTabWidth * i, singleTabWidth, height, 256,
+            Gui.drawModalRectWithCustomSizedTexture(x + singleTabWidth * i, y, getTextureU(), getTextureV() + singleTabWidth * i, singleTabWidth, height, 256,
                     256);
         }
     }

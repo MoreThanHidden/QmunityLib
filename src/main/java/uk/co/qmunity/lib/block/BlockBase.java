@@ -1,6 +1,7 @@
 package uk.co.qmunity.lib.block;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 
 public abstract class BlockBase extends Block{
@@ -8,7 +9,7 @@ public abstract class BlockBase extends Block{
     public BlockBase(Material material){
 
         super(material);
-        setStepSound(soundTypeStone);
+        setSoundType(SoundType.STONE);
         blockHardness = 3.0F;
     }
 

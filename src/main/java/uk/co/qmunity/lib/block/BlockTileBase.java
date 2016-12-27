@@ -1,20 +1,22 @@
 package uk.co.qmunity.lib.block;
 
-import uk.co.qmunity.lib.misc.ForgeDirectionUtils;
-import uk.co.qmunity.lib.tile.IRotatable;
-import uk.co.qmunity.lib.tile.TileBase;
-import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
+import uk.co.qmunity.lib.misc.EnumFacingUtils;
+import uk.co.qmunity.lib.tile.IRotatable;
+import uk.co.qmunity.lib.tile.TileBase;
 
 public abstract class BlockTileBase extends BlockBase implements ITileEntityProvider{
 
@@ -70,18 +72,16 @@ public abstract class BlockTileBase extends BlockBase implements ITileEntityProv
     }
 
     @Override
-    public boolean canProvidePower(){
-
+    public boolean canProvidePower(IBlockState state) {
         return isRedstoneEmitter;
     }
 
     @Override
-    public void onNeighborBlockChange(World world, int x, int y, int z, Block block){
-
-        super.onNeighborBlockChange(world, x, y, z, block);
+    public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
+        super.onNeighborChange(world, pos, neighbor);
         // Only do this on the server side.
-        if(!world.isRemote) {
-            TileBase tileEntity = (TileBase)world.getTileEntity(x, y, z);
+        if(!((World)world).isRemote) {
+            TileBase tileEntity = (TileBase)world.getTileEntity(pos);
             if(tileEntity != null) {
                 tileEntity.onBlockNeighbourChanged();
             }
@@ -89,9 +89,8 @@ public abstract class BlockTileBase extends BlockBase implements ITileEntityProv
     }
 
     @Override
-    public int isProvidingWeakPower(IBlockAccess par1IBlockAccess, int par2, int par3, int par4, int par5){
-
-        TileEntity te = par1IBlockAccess.getTileEntity(par2, par3, par4);
+    public int getWeakPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
+        TileEntity te = blockAccess.getTileEntity(pos);
         if(te instanceof TileBase) {
             TileBase tileBase = (TileBase)te;
             return tileBase.getOutputtingRedstone();
@@ -100,19 +99,18 @@ public abstract class BlockTileBase extends BlockBase implements ITileEntityProv
     }
 
     @Override
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int par6, float par7, float par8, float par9){
-
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
         if(player.isSneaking()) {
             return false;
         }
 
-        TileEntity entity = world.getTileEntity(x, y, z);
+        TileEntity entity = world.getTileEntity(pos);
         if(entity == null || !(entity instanceof TileBase)) {
             return false;
         }
 
         if(getGuiId() >= 0) {
-            if(!world.isRemote) player.openGui(getModInstance(), getGuiId(), world, x, y, z);
+            if(!world.isRemote) player.openGui(getModInstance(), getGuiId(), world, pos.getX(), pos.getY(), pos.getZ());
             return true;
         }
         return false;
@@ -121,18 +119,17 @@ public abstract class BlockTileBase extends BlockBase implements ITileEntityProv
     protected abstract Object getModInstance();
 
     @Override
-    public void breakBlock(World world, int x, int y, int z, Block block, int meta){
-
+    public void breakBlock(World world, BlockPos pos, IBlockState state) {
         if(shouldDropItems()) {
-            TileBase tile = (TileBase)world.getTileEntity(x, y, z);
+            TileBase tile = (TileBase)world.getTileEntity(pos);
             if(tile != null) {
                 for(ItemStack stack : tile.getDrops()) {
-                    spawnItemInWorld(world, stack, x + 0.5, y + 0.5, z + 0.5);
+                    spawnItemInWorld(world, stack, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
                 }
             }
         }
-        super.breakBlock(world, x, y, z, block, meta);
-        world.removeTileEntity(x, y, z);
+        super.breakBlock(world, pos, state);
+        world.removeTileEntity(pos);
     }
 
     private static void spawnItemInWorld(World world, ItemStack itemStack, double x, double y, double z){
@@ -142,7 +139,7 @@ public abstract class BlockTileBase extends BlockBase implements ITileEntityProv
         float dY = world.rand.nextFloat() * 0.8F + 0.1F;
         float dZ = world.rand.nextFloat() * 0.8F + 0.1F;
 
-        EntityItem entityItem = new EntityItem(world, x + dX, y + dY, z + dZ, new ItemStack(itemStack.getItem(), itemStack.stackSize, itemStack.getItemDamage()));
+        EntityItem entityItem = new EntityItem(world, x + dX, y + dY, z + dZ, new ItemStack(itemStack.getItem(), itemStack.getCount(), itemStack.getItemDamage()));
 
         if(itemStack.hasTagCompound()) {
             entityItem.getEntityItem().setTagCompound((NBTTagCompound)itemStack.getTagCompound().copy());
@@ -152,22 +149,23 @@ public abstract class BlockTileBase extends BlockBase implements ITileEntityProv
         entityItem.motionX = world.rand.nextGaussian() * factor;
         entityItem.motionY = world.rand.nextGaussian() * factor + 0.2F;
         entityItem.motionZ = world.rand.nextGaussian() * factor;
-        world.spawnEntityInWorld(entityItem);
-        itemStack.stackSize = 0;
+        world.spawnEntity(entityItem);
+        itemStack.setCount(0);
     }
 
     protected boolean shouldDropItems(){
         return true;
     }
 
+
     /**
      * Method to detect how the block was placed, and what way it's facing.
      */
     @Override
-    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase player, ItemStack iStack){
-        TileEntity te = world.getTileEntity(x, y, z);
+    public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
+        TileEntity te = world.getTileEntity(pos);
         if(te instanceof IRotatable) {
-            ((IRotatable)te).setFacingDirection(ForgeDirectionUtils.getDirectionFacing(player, canRotateVertical()).getOpposite());
+            ((IRotatable)te).setFacingDirection(EnumFacingUtils.getDirectionFacing(placer, canRotateVertical()).getOpposite());
         }
     }
 
@@ -177,14 +175,11 @@ public abstract class BlockTileBase extends BlockBase implements ITileEntityProv
     }
 
     @Override
-    public boolean rotateBlock(World worldObj, int x, int y, int z, ForgeDirection axis){
-
-        TileEntity te = worldObj.getTileEntity(x, y, z);
+    public boolean rotateBlock(World world, BlockPos pos, EnumFacing dir) {
+        TileEntity te = world.getTileEntity(pos);
         if(te instanceof IRotatable) {
             IRotatable rotatable = (IRotatable)te;
-            ForgeDirection dir = rotatable.getFacingDirection();
-            dir = dir.getRotation(axis);
-            if(dir != ForgeDirection.UP && dir != ForgeDirection.DOWN || canRotateVertical()) {
+            if(dir != EnumFacing.UP && dir != EnumFacing.DOWN || canRotateVertical()) {
                 rotatable.setFacingDirection(dir);
                 return true;
             }

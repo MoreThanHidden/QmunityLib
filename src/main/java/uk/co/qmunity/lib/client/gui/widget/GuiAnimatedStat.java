@@ -1,28 +1,28 @@
 package uk.co.qmunity.lib.client.gui.widget;
 
-import java.awt.Rectangle;
-import java.util.ArrayList;
-import java.util.List;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.entity.RenderItem;
+import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
-
+import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.fml.client.FMLClientHandler;
 import org.apache.commons.lang3.text.WordUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
-import cpw.mods.fml.client.FMLClientHandler;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GuiAnimatedStat extends BaseWidget implements IGuiAnimatedStat, IGuiWidget {
 
@@ -73,8 +73,7 @@ public class GuiAnimatedStat extends BaseWidget implements IGuiAnimatedStat, IGu
         texture = "";
         this.leftSided = leftSided;
         if (gui != null) {
-            ScaledResolution sr = new ScaledResolution(Minecraft.getMinecraft(), Minecraft.getMinecraft().displayWidth,
-                    Minecraft.getMinecraft().displayHeight);
+            ScaledResolution sr = new ScaledResolution(Minecraft.getMinecraft());
             if (sr.getScaledWidth() < 520) {
                 textSize = (sr.getScaledWidth() - 220) * 0.0033F;
             } else {
@@ -204,7 +203,7 @@ public class GuiAnimatedStat extends BaseWidget implements IGuiAnimatedStat, IGu
         oldWidth = width;
         oldHeight = height;
 
-        FontRenderer fontRenderer = FMLClientHandler.instance().getClient().fontRenderer;
+        FontRenderer fontRenderer = FMLClientHandler.instance().getClient().fontRendererObj;
         doneExpanding = true;
         if (isClicked) {
             // calculate the width and height needed for the box to fit the
@@ -282,12 +281,13 @@ public class GuiAnimatedStat extends BaseWidget implements IGuiAnimatedStat, IGu
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glLineWidth(3.0F);
         GL11.glColor4d(0, 0, 0, 1);
-        Tessellator tess = Tessellator.instance;
-        tess.startDrawing(GL11.GL_LINE_LOOP);
-        tess.addVertex(renderBaseX, renderAffectedY, zLevel);
-        tess.addVertex(renderBaseX + renderWidth, renderAffectedY, zLevel);
-        tess.addVertex(renderBaseX + renderWidth, renderAffectedY + renderHeight, zLevel);
-        tess.addVertex(renderBaseX, renderAffectedY + renderHeight, zLevel);
+        Tessellator tess = Tessellator.getInstance();
+        VertexBuffer buff = tess.getBuffer();
+        buff.begin(GL11.GL_LINE_LOOP, DefaultVertexFormats.POSITION_TEX);
+        buff.pos(renderBaseX, renderAffectedY, zLevel);
+        buff.pos(renderBaseX + renderWidth, renderAffectedY, zLevel);
+        buff.pos(renderBaseX + renderWidth, renderAffectedY + renderHeight, zLevel);
+        buff.pos(renderBaseX, renderAffectedY + renderHeight, zLevel);
         tess.draw();
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         if (leftSided)
@@ -301,7 +301,7 @@ public class GuiAnimatedStat extends BaseWidget implements IGuiAnimatedStat, IGu
             fontRenderer.drawStringWithShadow(title, renderBaseX + (leftSided ? -renderWidth + 2 : 18), renderAffectedY + 2, 0xFFFF00);
             for (int i = 0; i < textList.size(); i++) {
 
-                if (textList.get(i).contains("\u00a70") || textList.get(i).contains(EnumChatFormatting.DARK_RED.toString())) {
+                if (textList.get(i).contains("\u00a70") || textList.get(i).contains(TextFormatting.DARK_RED.toString())) {
                     fontRenderer.drawString(textList.get(i), renderBaseX + (leftSided ? -renderWidth + 2 : 18), renderAffectedY + i * 10
                             + 12, 0xFFFFFF);
                 } else {
@@ -329,13 +329,13 @@ public class GuiAnimatedStat extends BaseWidget implements IGuiAnimatedStat, IGu
     protected void renderItem(FontRenderer fontRenderer, int x, int y, ItemStack stack) {
 
         if (itemRenderer == null)
-            itemRenderer = new RenderItem();
+            itemRenderer = new RenderItem(Minecraft.getMinecraft().getTextureManager(), Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getModelManager(), Minecraft.getMinecraft().getItemColors());
         GL11.glPushMatrix();
         GL11.glTranslated(0, 0, -50);
         GL11.glEnable(GL12.GL_RESCALE_NORMAL);
         RenderHelper.enableGUIStandardItemLighting();
-        itemRenderer.renderItemAndEffectIntoGUI(fontRenderer, FMLClientHandler.instance().getClient().renderEngine, stack, x, y);
-        itemRenderer.renderItemOverlayIntoGUI(fontRenderer, Minecraft.getMinecraft().getTextureManager(), stack, x, y);
+        itemRenderer.renderItemAndEffectIntoGUI(stack, x, y);
+        itemRenderer.renderItemOverlayIntoGUI(fontRenderer, stack, x, y, null);
 
         GL11.glEnable(GL11.GL_ALPHA_TEST);
         RenderHelper.disableStandardItemLighting();
@@ -346,12 +346,13 @@ public class GuiAnimatedStat extends BaseWidget implements IGuiAnimatedStat, IGu
     public static void drawTexture(ResourceLocation texture, int x, int y) {
 
         Minecraft.getMinecraft().getTextureManager().bindTexture(texture);
-        Tessellator tessellator = Tessellator.instance;
-        tessellator.startDrawingQuads();
-        tessellator.addVertexWithUV(x, y + 16, 0, 0.0, 1.0);
-        tessellator.addVertexWithUV(x + 16, y + 16, 0, 1.0, 1.0);
-        tessellator.addVertexWithUV(x + 16, y, 0, 1.0, 0.0);
-        tessellator.addVertexWithUV(x, y, 0, 0.0, 0.0);
+        Tessellator tessellator = Tessellator.getInstance();
+        VertexBuffer buff = tessellator.getBuffer();
+        buff.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        buff.pos(x, y + 16, 0).tex(0.0, 1.0).endVertex();
+        buff.pos(x + 16, y + 16, 0).tex(1.0, 1.0).endVertex();
+        buff.pos(x + 16, y, 0).tex(1.0, 0.0).endVertex();
+        buff.pos(x, y, 0).tex(0.0, 0.0).endVertex();
         tessellator.draw();
     }
 
@@ -478,7 +479,7 @@ public class GuiAnimatedStat extends BaseWidget implements IGuiAnimatedStat, IGu
     @Override
     public void render(int mouseX, int mouseY, float partialTick) {
 
-        render(Minecraft.getMinecraft().fontRenderer, 0, partialTick);
+        render(Minecraft.getMinecraft().fontRendererObj, 0, partialTick);
 
     }
 

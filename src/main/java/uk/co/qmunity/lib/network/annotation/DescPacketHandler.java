@@ -5,14 +5,14 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.common.network.FMLEmbeddedChannel;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
+import net.minecraftforge.fml.relauncher.Side;
+import uk.co.qmunity.lib.QmunityLib;
 
 import java.util.EnumMap;
-
-import uk.co.qmunity.lib.QmunityLib;
-import cpw.mods.fml.common.network.FMLEmbeddedChannel;
-import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.common.network.internal.FMLProxyPacket;
-import cpw.mods.fml.relauncher.Side;
 
 /**
  * @author MineMaarten
@@ -32,7 +32,7 @@ public class DescPacketHandler extends SimpleChannelInboundHandler<FMLProxyPacke
     public static FMLProxyPacket getPacket(PacketDescription packet){
         ByteBuf buf = Unpooled.buffer();
         packet.toBytes(buf);
-        return new FMLProxyPacket(buf, CHANNEL);
+        return new FMLProxyPacket((PacketBuffer)buf, CHANNEL);
     }
 
 }
