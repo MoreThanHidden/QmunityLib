@@ -2,10 +2,15 @@ package uk.co.qmunity.lib;
 
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.*;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import uk.co.qmunity.lib.command.CommandQLib;
 import uk.co.qmunity.lib.helper.SystemInfoHelper;
+import uk.co.qmunity.lib.init.QLBlocks;
 import uk.co.qmunity.lib.network.NetworkHandler;
+import uk.co.qmunity.lib.part.compat.MultipartSystem;
 import uk.co.qmunity.lib.proxy.CommonProxy;
 import uk.co.qmunity.lib.util.QLog;
 
@@ -20,6 +25,7 @@ public class QmunityLib {
 
         event.getModMetadata().version = QLModInfo.fullVersionString();
         QLog.logger = event.getModLog();
+        MultipartSystem.preInit(event);
     }
 
     @Mod.EventHandler
@@ -28,6 +34,9 @@ public class QmunityLib {
         NetworkHandler.initQLib();
 
         proxy.registerRenders();
+
+        QLBlocks.init();
+        MultipartSystem.init(event);
     }
 
     @Mod.EventHandler

@@ -9,6 +9,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import uk.co.qmunity.lib.QLModInfo;
 import uk.co.qmunity.lib.network.annotation.DescPacketHandler;
 import uk.co.qmunity.lib.network.annotation.PacketCUpdateGui;
+import uk.co.qmunity.lib.network.packet.PacketCAddPart;
+import uk.co.qmunity.lib.network.packet.PacketCRemovePart;
+import uk.co.qmunity.lib.network.packet.PacketCUpdatePart;
 
 public class NetworkHandler{
 
@@ -20,11 +23,15 @@ public class NetworkHandler{
     public NetworkHandler(String modid){
 
         wrapper = NetworkRegistry.INSTANCE.newSimpleChannel(modid);
+
     }
 
     public static void initQLib(){
         new DescPacketHandler();
         QLIB.registerPacket(PacketCUpdateGui.class, Side.CLIENT);
+        QLIB.registerPacket(PacketCAddPart.class, Side.CLIENT);
+        QLIB.registerPacket(PacketCRemovePart.class, Side.CLIENT);
+        QLIB.registerPacket(PacketCUpdatePart.class, Side.CLIENT);
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})

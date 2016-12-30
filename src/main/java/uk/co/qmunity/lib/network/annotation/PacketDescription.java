@@ -22,7 +22,7 @@ public class PacketDescription extends LocatedPacket<PacketDescription>{
     public PacketDescription(){}
 
     public PacketDescription(TileBase te){
-        super(te.getX(), te.getY(), te.getZ());
+        super(te.getPos());
         values = new Object[te.getDescriptionFields().size()];
         types = new byte[values.length];
         for(int i = 0; i < values.length; i++) {

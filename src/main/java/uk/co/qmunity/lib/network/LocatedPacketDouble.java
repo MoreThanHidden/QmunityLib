@@ -1,5 +1,6 @@
 package uk.co.qmunity.lib.network;
 
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import uk.co.qmunity.lib.vec.IWorldLocation;
@@ -10,20 +11,15 @@ import java.io.IOException;
 
 public abstract class LocatedPacketDouble<T extends LocatedPacket<T>> extends Packet<T> {
 
-    protected double x, y, z;
+    protected BlockPos pos;
 
     public LocatedPacketDouble(IWorldLocation location) {
-
-        this.x = location.getX();
-        this.y = location.getY();
-        this.z = location.getZ();
+        this.pos = location.getPos();
     }
 
     public LocatedPacketDouble(double x, double y, double z) {
 
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        this.pos = new BlockPos(x,y,z);
     }
 
     public LocatedPacketDouble() {
@@ -33,17 +29,15 @@ public abstract class LocatedPacketDouble<T extends LocatedPacket<T>> extends Pa
     @Override
     public void read(DataInput buffer) throws IOException {
 
-        x = buffer.readDouble();
-        y = buffer.readDouble();
-        z = buffer.readDouble();
+        pos = new BlockPos(buffer.readDouble(), buffer.readDouble(), buffer.readDouble());
     }
 
     @Override
     public void write(DataOutput buffer) throws IOException {
 
-        buffer.writeDouble(x);
-        buffer.writeDouble(y);
-        buffer.writeDouble(z);
+        buffer.writeDouble(pos.getX());
+        buffer.writeDouble(pos.getY());
+        buffer.writeDouble(pos.getZ());
     }
 
     public NetworkRegistry.TargetPoint getTargetPoint(World world) {
@@ -53,7 +47,7 @@ public abstract class LocatedPacketDouble<T extends LocatedPacket<T>> extends Pa
 
     public NetworkRegistry.TargetPoint getTargetPoint(World world, double updateDistance) {
 
-        return new NetworkRegistry.TargetPoint(world.provider.getDimension(), x, y, z, updateDistance);
+        return new NetworkRegistry.TargetPoint(world.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), updateDistance);
     }
 
 }

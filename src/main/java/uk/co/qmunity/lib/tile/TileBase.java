@@ -105,7 +105,7 @@ public class TileBase extends TileEntity implements IRotatable, IWorldLocation, 
 
     protected void markForRenderUpdate(){
 
-        if(world != null) world.markBlockRangeForRenderUpdate(getX(), getY(), getZ(), getX(), getY(), getZ());
+        if(world != null) world.markBlockRangeForRenderUpdate(pos.getX(), pos.getY(), pos.getZ(), pos.getX(), pos.getY(), pos.getZ());
     }
 
     protected void notifyNeighborBlockUpdate(){
@@ -263,18 +263,4 @@ public class TileBase extends TileEntity implements IRotatable, IWorldLocation, 
         return getWorld();
     }
 
-    @Override
-    public int getX(){
-        return pos.getX();
-    }
-
-    @Override
-    public int getY(){
-        return pos.getY();
-    }
-
-    @Override
-    public int getZ(){
-        return pos.getZ();
-    }
 }
