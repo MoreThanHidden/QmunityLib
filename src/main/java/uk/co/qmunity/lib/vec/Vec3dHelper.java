@@ -1,5 +1,6 @@
 package uk.co.qmunity.lib.vec;
 
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.Vec3d;
 import uk.co.qmunity.lib.transform.Transformation;
 
@@ -22,6 +23,36 @@ public class Vec3dHelper {
         return rotate(vec, res);
     }
 
+    public static Vec3d rotate(Vec3d vec,  EnumFacing face, Vec3d center) {
+
+        switch (face) {
+            case DOWN:
+                return vec;
+            case UP:
+                return rotate(vec, 0, 0, 2 * 90, center);
+            case WEST:
+                return rotate(vec, 0, 0, -1 * 90, center);
+            case EAST:
+                return rotate(vec, 0, 0, 1 * 90, center);
+            case NORTH:
+                return rotate(vec, 1 * 90, 0, 0, center);
+            case SOUTH:
+                return rotate(vec, -1 * 90, 0, 0, center);
+            default:
+                break;
+        }
+
+        return vec;
+    }
+
+    private static Vec3d rotate(Vec3d vec, int x, int y, int z, Vec3d center) {
+
+        vec = rotate(vec.subtract(center), x, y, z).add(center);
+        double mul = 10000000;
+
+        return new Vec3d((Math.round(vec.xCoord * mul) / mul), (Math.round(vec.yCoord * mul) / mul), (Math.round(vec.zCoord * mul) / mul));
+    }
+
     public static Vec3d mul(Vec3d vec, Vec3d vec2){
         return new Vec3d(vec.xCoord * vec2.xCoord, vec.yCoord * vec2.yCoord, vec.zCoord * vec2.zCoord);
     }
@@ -33,6 +64,26 @@ public class Vec3dHelper {
     public static Vec3d transform(Vec3d vec, Transformation transformation) {
 
         return transformation.apply(vec);
+    }
+
+    public static final EnumFacing toEnumFacing(Vec3d vec3) {
+
+        if (vec3.zCoord == 1)
+            return EnumFacing.SOUTH;
+        if (vec3.zCoord == -1)
+            return EnumFacing.NORTH;
+
+        if (vec3.xCoord == 1)
+            return EnumFacing.EAST;
+        if (vec3.xCoord == -1)
+            return EnumFacing.WEST;
+
+        if (vec3.yCoord == 1)
+            return EnumFacing.UP;
+        if (vec3.yCoord == -1)
+            return EnumFacing.DOWN;
+
+        return null;
     }
 
 }
