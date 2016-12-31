@@ -22,6 +22,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
+import uk.co.qmunity.lib.client.render.RenderHelper;
 import uk.co.qmunity.lib.item.ItemMultipart;
 import uk.co.qmunity.lib.part.IPart;
 import uk.co.qmunity.lib.part.IPartRenderPlacement;
@@ -107,14 +108,14 @@ public class RenderPartPlacement {
                     Tessellator t = Tessellator.getInstance();
                     VertexBuffer vb =  t.getBuffer();
                     vb.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
-                    //RenderHelper.instance.setRenderCoords(world, part.getPos());
+                    RenderHelper.instance.setRenderCoords(world, part.getPos().getX(),  part.getPos().getY(),  part.getPos().getZ());
 
                     if (part.shouldRenderOnPass(0))
-                        part.renderStatic(part.getPos(), vb, 0);
+                        part.renderStatic(part.getPos(), RenderHelper.instance, vb, 0);
                     if (part.shouldRenderOnPass(1))
-                        part.renderStatic(part.getPos(), vb, 1);
+                        part.renderStatic(part.getPos(), RenderHelper.instance, vb, 1);
 
-                    //RenderHelper.instance.reset();
+                    RenderHelper.instance.reset();
                     t.draw();
                     GlStateManager.translate(part.getPos().getX(), part.getPos().getY(), part.getPos().getZ());
 

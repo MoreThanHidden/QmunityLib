@@ -10,6 +10,7 @@ import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import uk.co.qmunity.lib.client.render.RenderHelper;
 import uk.co.qmunity.lib.helper.ItemHelper;
 import uk.co.qmunity.lib.part.compat.OcclusionHelper;
 import uk.co.qmunity.lib.raytrace.QRayTraceResult;
@@ -142,14 +143,14 @@ public abstract class PartBase implements IPart {
 
     @Override
     @SideOnly(Side.CLIENT)
-    public boolean renderBreaking(Vec3i translation, VertexBuffer renderer, int pass, QRayTraceResult mop) {
+    public boolean renderBreaking(Vec3i translation, RenderHelper renderer, VertexBuffer buffer, int pass, QRayTraceResult mop) {
 
         return false;
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public boolean renderStatic(Vec3i translation, VertexBuffer renderer, int pass) {
+    public boolean renderStatic(Vec3i translation, RenderHelper renderer, VertexBuffer buffer, int pass) {
 
         return false;
     }

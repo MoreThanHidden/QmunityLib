@@ -8,6 +8,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import uk.co.qmunity.lib.client.render.RenderHelper;
 import uk.co.qmunity.lib.raytrace.QRayTraceResult;
 import uk.co.qmunity.lib.vec.IWorldLocation;
 import uk.co.qmunity.lib.vec.Vec3dCube;
@@ -99,14 +100,14 @@ public interface IPart extends IWorldLocation {
      * Renders the breaking animation of this part at the specified position.
      */
     @SideOnly(Side.CLIENT)
-    public boolean renderBreaking(Vec3i translation, VertexBuffer renderer, int pass, QRayTraceResult mop);
+    public boolean renderBreaking(Vec3i translation, RenderHelper renderer, VertexBuffer buffer, int pass, QRayTraceResult mop);
 
     /**
      * Renders this part statically. A tessellator has alredy started drawing. <br>
      * Only called when there's a block/lighting/render update in the chunk this part is in.
      */
     @SideOnly(Side.CLIENT)
-    public boolean renderStatic(Vec3i translation, VertexBuffer renderer, int pass);
+    public boolean renderStatic(Vec3i translation, RenderHelper renderer, VertexBuffer buffer, int pass);
 
     /**
      * Renders this part dynamically (every render tick).

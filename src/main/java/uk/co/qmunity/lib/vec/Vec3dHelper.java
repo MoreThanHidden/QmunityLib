@@ -1,6 +1,7 @@
 package uk.co.qmunity.lib.vec;
 
 import net.minecraft.util.math.Vec3d;
+import uk.co.qmunity.lib.transform.Transformation;
 
 public class Vec3dHelper {
 
@@ -19,6 +20,19 @@ public class Vec3dHelper {
         Quat res = rx.mul(ry.mul(rz));
 
         return rotate(vec, res);
+    }
+
+    public static Vec3d mul(Vec3d vec, Vec3d vec2){
+        return new Vec3d(vec.xCoord * vec2.xCoord, vec.yCoord * vec2.yCoord, vec.zCoord * vec2.zCoord);
+    }
+
+    public static Vec3d mul(Vec3d vec, int i){
+        return mul(vec, new Vec3d(i, i, i));
+    }
+
+    public static Vec3d transform(Vec3d vec, Transformation transformation) {
+
+        return transformation.apply(vec);
     }
 
 }
