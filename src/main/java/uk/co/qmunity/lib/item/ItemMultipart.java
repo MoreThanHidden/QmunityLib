@@ -25,7 +25,7 @@ public abstract class ItemMultipart extends Item {
 
     @Override
     public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-        IPart part = createPart(player.getHeldItem(hand), player, world, new RayTraceResult(new Vec3d(pos.add(hitX, hitY, hitZ)), facing, pos));
+        IPart part = createPart(player.getHeldItem(hand), player, world, new RayTraceResult(new Vec3d(hitX, hitY, hitZ), facing, pos));
 
         if (part == null)
            return EnumActionResult.PASS;

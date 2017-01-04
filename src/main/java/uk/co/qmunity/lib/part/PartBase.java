@@ -110,7 +110,7 @@ public abstract class PartBase implements IPart {
         List<ItemStack> items = new ArrayList<ItemStack>();
 
         ItemStack is = getItem();
-        if (is != null) {
+        if (!is.isEmpty()) {
             is.setCount(1);
             items.add(is);
         }
@@ -122,7 +122,7 @@ public abstract class PartBase implements IPart {
     public boolean breakAndDrop(EntityPlayer player, QRayTraceResult mop) {
 
         List<ItemStack> drops = getDrops();
-        if ((player == null || !player.capabilities.isCreativeMode) && drops != null && drops.size() > 0)
+        if ((player == null || !player.capabilities.isCreativeMode) && !drops.isEmpty() && drops.size() > 0)
             for (ItemStack item : drops)
                 ItemHelper.dropItem(getWorld(), getPos(), item);
 

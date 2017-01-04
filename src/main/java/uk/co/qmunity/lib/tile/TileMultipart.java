@@ -51,7 +51,7 @@ public class TileMultipart extends TileEntity implements ITilePartHolder, ITicka
     @Override
     public World getWorld() {
 
-        return getWorld();
+        return world;
     }
 
     @Override
@@ -548,7 +548,7 @@ public class TileMultipart extends TileEntity implements ITilePartHolder, ITicka
             return mop.getPart().getPickedItem(mop);
         }
 
-        return null;
+        return ItemStack.EMPTY;
     }
 
     @Override

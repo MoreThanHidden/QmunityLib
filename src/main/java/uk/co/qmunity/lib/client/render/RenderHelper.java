@@ -243,10 +243,11 @@ public class RenderHelper {
         VertexBuffer buff = Tessellator.getInstance().getBuffer();
 
         buff.tex(u, v);
-        buff.lightmap(brightness, opacity);
-        buff.putColor4(color);
-        buff.normal((float) normal.xCoord, (float) normal.yCoord, (float) normal.zCoord);
-        buff.pos(vertex.xCoord, vertex.yCoord, vertex.zCoord).endVertex();
+        //buff.setBrightness(brightness);
+        float r = ((color>> 16) & 0xFF) / 255.0F;
+        float g = ((color>> 8) & 0xFF) / 255.0F;
+        float b = ((color>> 0) & 0xFF) / 255.0F;
+        buff.pos(vertex.xCoord, vertex.yCoord, vertex.zCoord).normal((float) normal.xCoord, (float) normal.yCoord, (float) normal.zCoord).color(r,g,b,opacity).endVertex();
     }
 
     public BlockPos getLocation() {

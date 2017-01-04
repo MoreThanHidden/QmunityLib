@@ -3,7 +3,6 @@ package uk.co.qmunity.lib.block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -110,15 +109,16 @@ public class BlockMultipart extends BlockContainer {
         return blockbounds;
     }
 
+    @Nullable
     @Override
-    @SideOnly(Side.CLIENT)
-    public boolean addDestroyEffects(World world, BlockPos pos, ParticleManager manager) {
-        return true;
+    public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos) {
+        return blockbounds;
     }
 
     @Override
-    public boolean addHitEffects(IBlockState state, World worldObj, RayTraceResult target, ParticleManager manager) {
-        return true;
+    @SideOnly(Side.CLIENT)
+    public AxisAlignedBB getSelectedBoundingBox(IBlockState state, World worldIn, BlockPos pos) {
+        return blockbounds;
     }
 
     @Override
@@ -224,7 +224,7 @@ public class BlockMultipart extends BlockContainer {
     public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player) {
         TileMultipart te = get(world, pos);
         if (te == null)
-            return null;
+            return ItemStack.EMPTY;
 
         return te.pickUp(QmunityLib.proxy.getPlayer());
     }

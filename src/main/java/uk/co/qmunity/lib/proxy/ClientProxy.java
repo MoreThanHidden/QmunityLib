@@ -24,6 +24,7 @@ public class ClientProxy extends CommonProxy {
         RenderingRegistry.registerEntityRenderingHandler(EntityFXParticle.class, new RenderParticle());
 
         RenderMultipart multipartRenderer = new RenderMultipart();
+        //RenderingRegistry.registerBlockHandler(multipartRenderer);
         ClientRegistry.bindTileEntitySpecialRenderer(TileMultipart.class, multipartRenderer);
 
         RenderPartPlacement renderPartPlacement = new RenderPartPlacement();

@@ -47,7 +47,7 @@ public class RenderPartPlacement {
         EntityPlayer player = mc.player;
         ItemStack item = player.getHeldItem(EnumHand.MAIN_HAND);
 
-        if (item == null)
+        if (item.isEmpty())
             return;
         if (!(item.getItem() instanceof ItemMultipart))
             return;

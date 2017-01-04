@@ -128,7 +128,7 @@ public class StandaloneCompat implements IMultipartCompat {
         }
 
         if (pass == 1 || solidFace)
-            location.offset(clickedFace);
+           location = location.offset(clickedFace);
 
         if (canBeMultipart(world, location)) {
             IPartPlacement placement = MultipartCompatibility.getPlacementForPart(part, world, location, clickedFace, mop, player);

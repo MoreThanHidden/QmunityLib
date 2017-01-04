@@ -59,7 +59,7 @@ public class RayTracer {
         BlockPos pos = mop.getBlockPos().add(blockPos);
         mop.hitVec = mop.hitVec.addVector(blockPos.getX(), blockPos.getY(), blockPos.getZ());
 
-        return new QRayTraceResult(new RayTraceResult(mop.hitVec, mop.sideHit, pos));
+        return new QRayTraceResult(new RayTraceResult(mop.hitVec, mop.sideHit, pos), mop.getCube());
     }
 
     public QRayTraceResult rayTraceCubes(List<Vec3dCube> cubes, Vec3d start, Vec3d end) {

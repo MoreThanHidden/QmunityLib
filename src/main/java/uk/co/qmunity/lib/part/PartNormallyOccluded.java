@@ -1,11 +1,11 @@
 package uk.co.qmunity.lib.part;
 
-import java.util.Arrays;
-import java.util.List;
-
 import net.minecraft.item.ItemStack;
 import uk.co.qmunity.lib.part.compat.OcclusionHelper;
 import uk.co.qmunity.lib.vec.Vec3dCube;
+
+import java.util.Arrays;
+import java.util.List;
 
 public final class PartNormallyOccluded extends PartBase implements IPartOccluding {
 
@@ -30,7 +30,7 @@ public final class PartNormallyOccluded extends PartBase implements IPartOccludi
     @Override
     public ItemStack getItem() {
 
-        return null;
+        return ItemStack.EMPTY;
     }
 
     @Override
