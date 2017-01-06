@@ -1,5 +1,6 @@
 package uk.co.qmunity.lib.compat.fmp;
-
+/*
+Not Updated to 1.11
 import io.netty.buffer.Unpooled;
 
 import java.util.ArrayList;
@@ -18,10 +19,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.RayTraceResult;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraft.util.EnumFacing;
 import uk.co.qmunity.lib.QLModInfo;
 import uk.co.qmunity.lib.QmunityLib;
 import uk.co.qmunity.lib.client.render.VertexConsumerTessellator;
@@ -35,7 +36,7 @@ import uk.co.qmunity.lib.part.ISlottedPart;
 import uk.co.qmunity.lib.part.IThruHolePart;
 import uk.co.qmunity.lib.part.PartRegistry;
 import uk.co.qmunity.lib.part.PartSlot;
-import uk.co.qmunity.lib.raytrace.QMovingObjectPosition;
+import uk.co.qmunity.lib.raytrace.QRayTraceResult;
 import uk.co.qmunity.lib.raytrace.RayTracer;
 import uk.co.qmunity.lib.vec.Cuboid;
 import codechicken.lib.data.MCDataInput;
@@ -119,13 +120,13 @@ public class FMPPart extends TMultiPart implements IPartHolder, TSlottedPart, TN
         return cubes;
     }
 
-    public QMovingObjectPosition rayTrace(Vec3 start, Vec3 end) {
+    public QRayTraceResult rayTrace(Vec3 start, Vec3 end) {
 
-        QMovingObjectPosition closest = null;
+        QRayTraceResult closest = null;
         double dist = Double.MAX_VALUE;
 
         for (IQLPart p : getParts()) {
-            QMovingObjectPosition mop = p.rayTrace(start, end);
+            QRayTraceResult mop = p.rayTrace(start, end);
             if (mop != null) {
                 double d = mop.hitVec.distanceTo(start);
                 if (closest == null || d <= dist) {
@@ -140,7 +141,7 @@ public class FMPPart extends TMultiPart implements IPartHolder, TSlottedPart, TN
     @Override
     public ExtendedMOP collisionRayTrace(Vec3 start, Vec3 end) {
 
-        QMovingObjectPosition qmop = rayTrace(start, end);
+        QRayTraceResult qmop = rayTrace(start, end);
         if (qmop == null || qmop.part == null)
             return null;
         ExtendedMOP emop = new ExtendedMOP(qmop, 0, start.squareDistanceTo(qmop.hitVec));
@@ -582,7 +583,7 @@ public class FMPPart extends TMultiPart implements IPartHolder, TSlottedPart, TN
     @SideOnly(Side.CLIENT)
     public void drawBreaking(RenderBlocks renderBlocks) {
 
-        QMovingObjectPosition mop = rayTrace(RayTracer.getStartVec(QmunityLib.proxy.getPlayer()),
+        QRayTraceResult mop = rayTrace(RayTracer.getStartVec(QmunityLib.proxy.getPlayer()),
                 RayTracer.getEndVec(QmunityLib.proxy.getPlayer()));
         if (mop != null) {
             LightMatrix.instance.locate(getWorld(), getX(), getY(), getZ());
@@ -593,9 +594,9 @@ public class FMPPart extends TMultiPart implements IPartHolder, TSlottedPart, TN
 
     @Override
     @SideOnly(Side.CLIENT)
-    public boolean drawHighlight(MovingObjectPosition hit, EntityPlayer player, float frame) {
+    public boolean drawHighlight(RayTraceResult hit, EntityPlayer player, float frame) {
 
-        QMovingObjectPosition mop = rayTrace(RayTracer.getStartVec(player), RayTracer.getEndVec(player));
+        QRayTraceResult mop = rayTrace(RayTracer.getStartVec(player), RayTracer.getEndVec(player));
         if (mop == null || mop.part == null)
             return true;
         return mop.part.drawHighlight(mop, player, frame);
@@ -658,7 +659,7 @@ public class FMPPart extends TMultiPart implements IPartHolder, TSlottedPart, TN
 
         for (IQLPart p : getParts())
             if (p instanceof uk.co.qmunity.lib.part.IRedstonePart)
-                if (((uk.co.qmunity.lib.part.IRedstonePart) p).canConnectRedstone(ForgeDirection.getOrientation(side)))
+                if (((uk.co.qmunity.lib.part.IRedstonePart) p).canConnectRedstone(EnumFacing.getOrientation(side)))
                     return true;
         return false;
     }
@@ -670,7 +671,7 @@ public class FMPPart extends TMultiPart implements IPartHolder, TSlottedPart, TN
 
         for (IQLPart p : getParts())
             if (p instanceof uk.co.qmunity.lib.part.IRedstonePart)
-                max = Math.max(max, ((uk.co.qmunity.lib.part.IRedstonePart) p).getStrongPower(ForgeDirection.getOrientation(side)));
+                max = Math.max(max, ((uk.co.qmunity.lib.part.IRedstonePart) p).getStrongPower(EnumFacing.getOrientation(side)));
 
         return max;
     }
@@ -682,7 +683,7 @@ public class FMPPart extends TMultiPart implements IPartHolder, TSlottedPart, TN
 
         for (IQLPart p : getParts())
             if (p instanceof uk.co.qmunity.lib.part.IRedstonePart)
-                max = Math.max(max, ((uk.co.qmunity.lib.part.IRedstonePart) p).getWeakPower(ForgeDirection.getOrientation(side)));
+                max = Math.max(max, ((uk.co.qmunity.lib.part.IRedstonePart) p).getWeakPower(EnumFacing.getOrientation(side)));
 
         return max;
     }
@@ -793,9 +794,9 @@ public class FMPPart extends TMultiPart implements IPartHolder, TSlottedPart, TN
     }
 
     @Override
-    public ItemStack pickItem(MovingObjectPosition hit) {
+    public ItemStack pickItem(RayTraceResult hit) {
 
-        QMovingObjectPosition mop = rayTrace(RayTracer.getStartVec(QmunityLib.proxy.getPlayer()),
+        QRayTraceResult mop = rayTrace(RayTracer.getStartVec(QmunityLib.proxy.getPlayer()),
                 RayTracer.getEndVec(QmunityLib.proxy.getPlayer()));
         if (mop == null || mop.part == null)
             return null;
@@ -803,12 +804,12 @@ public class FMPPart extends TMultiPart implements IPartHolder, TSlottedPart, TN
     }
 
     @Override
-    public void harvest(MovingObjectPosition hit, EntityPlayer player) {
+    public void harvest(RayTraceResult hit, EntityPlayer player) {
 
         if (world().isRemote)
             return;
 
-        QMovingObjectPosition mop = rayTrace(RayTracer.getStartVec(player), RayTracer.getEndVec(player));
+        QRayTraceResult mop = rayTrace(RayTracer.getStartVec(player), RayTracer.getEndVec(player));
         if (mop == null || mop.part == null) {
             super.harvest(hit, player);
             return;
@@ -818,27 +819,27 @@ public class FMPPart extends TMultiPart implements IPartHolder, TSlottedPart, TN
     }
 
     @Override
-    public void click(EntityPlayer player, MovingObjectPosition hit, ItemStack item) {
+    public void click(EntityPlayer player, RayTraceResult hit, ItemStack item) {
 
-        QMovingObjectPosition mop = rayTrace(RayTracer.getStartVec(player), RayTracer.getEndVec(player));
+        QRayTraceResult mop = rayTrace(RayTracer.getStartVec(player), RayTracer.getEndVec(player));
         if (mop == null || mop.part == null)
             return;
         mop.part.onClicked(player, mop, item);
     }
 
     @Override
-    public boolean activate(EntityPlayer player, MovingObjectPosition hit, ItemStack item) {
+    public boolean activate(EntityPlayer player, RayTraceResult hit, ItemStack item) {
 
-        QMovingObjectPosition mop = rayTrace(RayTracer.getStartVec(player), RayTracer.getEndVec(player));
+        QRayTraceResult mop = rayTrace(RayTracer.getStartVec(player), RayTracer.getEndVec(player));
         if (mop == null || mop.part == null)
             return false;
         return mop.part.onActivated(player, mop, item);
     }
 
     @Override
-    public float getStrength(MovingObjectPosition hit, EntityPlayer player) {
+    public float getStrength(RayTraceResult hit, EntityPlayer player) {
 
-        QMovingObjectPosition mop = rayTrace(RayTracer.getStartVec(player), RayTracer.getEndVec(player));
+        QRayTraceResult mop = rayTrace(RayTracer.getStartVec(player), RayTracer.getEndVec(player));
         if (mop == null || mop.part == null)
             return 30;
         return 30 * mop.part.getHardness(player, mop);
@@ -860,7 +861,7 @@ public class FMPPart extends TMultiPart implements IPartHolder, TSlottedPart, TN
         boolean found = false;
         for (IQLPart p : getParts()) {
             if (p instanceof IThruHolePart) {
-                val = Math.max(val, ((IThruHolePart) p).getHollowSize(ForgeDirection.getOrientation(side)));
+                val = Math.max(val, ((IThruHolePart) p).getHollowSize(EnumFacing.getOrientation(side)));
                 found = true;
             }
         }
@@ -870,20 +871,21 @@ public class FMPPart extends TMultiPart implements IPartHolder, TSlottedPart, TN
     }
 
     @Override
-    public boolean canConnectRedstone(ForgeDirection face, ForgeDirection side) {
+    public boolean canConnectRedstone(EnumFacing face, EnumFacing side) {
 
         return false;
     }
 
     @Override
-    public int getWeakRedstoneOutput(ForgeDirection face, ForgeDirection side) {
+    public int getWeakRedstoneOutput(EnumFacing face, EnumFacing side) {
 
         return 0;
     }
 
     @Override
-    public int getStrongRedstoneOutput(ForgeDirection face, ForgeDirection side) {
+    public int getStrongRedstoneOutput(EnumFacing face, EnumFacing side) {
 
         return 0;
     }
 }
+*/

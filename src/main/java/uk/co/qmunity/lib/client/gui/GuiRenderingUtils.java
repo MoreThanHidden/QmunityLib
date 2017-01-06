@@ -3,10 +3,9 @@ package uk.co.qmunity.lib.client.gui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.entity.RenderItem;
-import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.RenderItem;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
 
 /**
@@ -28,7 +27,7 @@ public class GuiRenderingUtils {
 
     public static FontRenderer fontRenderer() {
 
-        return mc().fontRenderer;
+        return mc().fontRendererObj;
     }
 
     public static void bindTexture(ResourceLocation texture) {
@@ -80,7 +79,7 @@ public class GuiRenderingUtils {
 
     public static void drawTexturedRect(int xOffset, int yOffset, int width, int height, float u, float v, float texW, float texH) {
 
-        Gui.func_146110_a(xOffset, yOffset, u, v, width, height, texW, texH);
+        Gui.drawModalRectWithCustomSizedTexture(xOffset, yOffset, u, v, width, height, texW, texH);
     }
 
     public static void drawTexturedRect(int xOffset, int yOffset, int width, int height, float u, float v) {
@@ -88,7 +87,7 @@ public class GuiRenderingUtils {
         drawTexturedRect(xOffset, yOffset, width, height, u, v, 256, 256);
     }
 
-    public static void drawTexturedRect(int xOffset, int yOffset, IIcon icon) {
+    public static void drawTexturedRect(int xOffset, int yOffset, TextureAtlasSprite icon) {
 
         int iw = icon.getIconWidth();
         int ih = icon.getIconHeight();
@@ -101,31 +100,31 @@ public class GuiRenderingUtils {
             float texHeight, int outlineSize) {
 
         // Corners
-        Gui.func_146110_a(xOffset, yOffset, u, v, outlineSize, outlineSize, 256, 256);
-        Gui.func_146110_a(xOffset, yOffset + height - outlineSize, u, v + texHeight - outlineSize, outlineSize, outlineSize, 256, 256);
-        Gui.func_146110_a(xOffset + width - outlineSize, yOffset, u + texWidth - outlineSize, v, outlineSize, outlineSize, 256, 256);
-        Gui.func_146110_a(xOffset + width - outlineSize, yOffset + height - outlineSize, u + texWidth - outlineSize, v + texHeight
+        Gui.drawModalRectWithCustomSizedTexture(xOffset, yOffset, u, v, outlineSize, outlineSize, 256, 256);
+       Gui.drawModalRectWithCustomSizedTexture(xOffset, yOffset + height - outlineSize, u, v + texHeight - outlineSize, outlineSize, outlineSize, 256, 256);
+       Gui.drawModalRectWithCustomSizedTexture(xOffset + width - outlineSize, yOffset, u + texWidth - outlineSize, v, outlineSize, outlineSize, 256, 256);
+       Gui.drawModalRectWithCustomSizedTexture(xOffset + width - outlineSize, yOffset + height - outlineSize, u + texWidth - outlineSize, v + texHeight
                 - outlineSize, outlineSize, outlineSize, 256, 256);
 
         // Borders and inside
         for (int x = outlineSize; x < width - outlineSize; x += texWidth - outlineSize * 2) {
             // Top and bottom borders
-            Gui.func_146110_a(xOffset + x, yOffset, u + outlineSize, v,
+           Gui.drawModalRectWithCustomSizedTexture(xOffset + x, yOffset, u + outlineSize, v,
                     (int) Math.min(width - outlineSize - x, texWidth - outlineSize * 2), outlineSize, 256, 256);
-            Gui.func_146110_a(xOffset + x, yOffset + height - outlineSize, u + outlineSize, v + texHeight - outlineSize,
+           Gui.drawModalRectWithCustomSizedTexture(xOffset + x, yOffset + height - outlineSize, u + outlineSize, v + texHeight - outlineSize,
                     (int) Math.min(width - outlineSize - x, texWidth - outlineSize * 2), outlineSize, 256, 256);
 
             for (int y = outlineSize; y < height - outlineSize; y += texHeight - outlineSize * 2) {
                 // Left and right borders, only if x == outlineSize, to prevent over-drawing
                 if (x == outlineSize) {
-                    Gui.func_146110_a(xOffset, yOffset + y, u, v + outlineSize, outlineSize,
+                   Gui.drawModalRectWithCustomSizedTexture(xOffset, yOffset + y, u, v + outlineSize, outlineSize,
                             (int) Math.min(height - outlineSize - y, texHeight - outlineSize * 2), 256, 256);
-                    Gui.func_146110_a(xOffset + width - outlineSize, yOffset + y, u + texWidth - outlineSize, v + outlineSize, outlineSize,
+                   Gui.drawModalRectWithCustomSizedTexture(xOffset + width - outlineSize, yOffset + y, u + texWidth - outlineSize, v + outlineSize, outlineSize,
                             (int) Math.min(height - outlineSize - y, texHeight - outlineSize * 2), 256, 256);
                 }
 
                 // Inside
-                Gui.func_146110_a(xOffset + x, yOffset + y, u + outlineSize, v + outlineSize,
+               Gui.drawModalRectWithCustomSizedTexture(xOffset + x, yOffset + y, u + outlineSize, v + outlineSize,
                         (int) Math.min(width - outlineSize - x, texWidth - outlineSize * 2),
                         (int) Math.min(height - outlineSize - y, texHeight - outlineSize * 2), 256, 256);
             }
@@ -135,17 +134,9 @@ public class GuiRenderingUtils {
     public static void drawItem(int xOffset, int yOffset, ItemStack stack) {
 
         if (customRenderItem == null) {
-            customRenderItem = new RenderItem() {
-
-                @Override
-                public boolean shouldSpreadItems() {
-
-                    return false;
-                }
-            };
-            customRenderItem.setRenderManager(RenderManager.instance);
+            customRenderItem = Minecraft.getMinecraft().getRenderItem();
         }
 
-        customRenderItem.renderItemIntoGUI(fontRenderer(), mc().renderEngine, stack, xOffset, yOffset);
+        customRenderItem.renderItemIntoGUI(stack, xOffset, yOffset);
     }
 }

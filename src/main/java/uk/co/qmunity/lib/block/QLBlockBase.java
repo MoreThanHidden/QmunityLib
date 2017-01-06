@@ -1,9 +1,10 @@
 package uk.co.qmunity.lib.block;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.ModContainer;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainer;
 
 public abstract class QLBlockBase extends Block {
 
@@ -12,15 +13,15 @@ public abstract class QLBlockBase extends Block {
     public QLBlockBase(Material material) {
 
         super(material);
-        setStepSound(soundTypeStone);
+        setSoundType(SoundType.STONE);
         setHardness(3.0F);
     }
 
     public QLBlockBase(Material material, String name) {
 
         this(material);
-        setBlockName(name);
-        setBlockTextureName(getModId() + ":" + name);
+        setUnlocalizedName(name);
+        setRegistryName(getModId() + ":" + name);
     }
 
     @Override

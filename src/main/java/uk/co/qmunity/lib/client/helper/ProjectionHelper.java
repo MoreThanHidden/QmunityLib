@@ -1,13 +1,12 @@
 package uk.co.qmunity.lib.client.helper;
 
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-
 import net.minecraft.client.renderer.GLAllocation;
-import net.minecraft.util.Vec3;
-
+import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
+
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
 /**
  * Most of this class was made by the OpenMods team for OpenModsLib but has been adapted for use in QmunityLib.<br>
@@ -37,7 +36,7 @@ public class ProjectionHelper {
         GL11.glLoadMatrix(modelview);
     }
 
-    public Vec3 unproject(float winX, float winY, float winZ) {
+    public Vec3d unproject(float winX, float winY, float winZ) {
 
         GLU.gluUnProject(winX, winY, winZ, modelview, projection, viewport, objectCoords);
 
@@ -45,10 +44,10 @@ public class ProjectionHelper {
         float objectY = objectCoords.get(1);
         float objectZ = objectCoords.get(2);
 
-        return Vec3.createVectorHelper(objectX, objectY, objectZ);
+        return new Vec3d(objectX, objectY, objectZ);
     }
 
-    public Vec3 project(float objX, float objY, float objZ) {
+    public Vec3d project(float objX, float objY, float objZ) {
 
         GLU.gluProject(objX, objY, objZ, modelview, projection, viewport, winCoords);
 
@@ -56,6 +55,6 @@ public class ProjectionHelper {
         float winY = winCoords.get(1);
         float winZ = winCoords.get(2);
 
-        return Vec3.createVectorHelper(winX, winY, winZ);
+        return new Vec3d(winX, winY, winZ);
     }
 }

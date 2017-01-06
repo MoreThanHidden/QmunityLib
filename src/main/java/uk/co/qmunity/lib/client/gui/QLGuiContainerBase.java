@@ -1,10 +1,5 @@
 package uk.co.qmunity.lib.client.gui;
 
-import static uk.co.qmunity.lib.client.gui.GuiRenderingUtils.*;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -13,20 +8,24 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
-
 import uk.co.qmunity.lib.client.gui.widget.IGuiWidget;
 import uk.co.qmunity.lib.client.gui.widget.IWidgetAction;
 import uk.co.qmunity.lib.client.gui.widget.IWidgetContainer;
 import uk.co.qmunity.lib.client.gui.widget.IWidgetListener;
 import uk.co.qmunity.lib.client.helper.InputHelper;
 import uk.co.qmunity.lib.inventory.slot.ISlotPhantom;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent;
-import cpw.mods.fml.common.gameevent.TickEvent.Phase;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static uk.co.qmunity.lib.client.gui.GuiRenderingUtils.drawHorizontalAlignedString;
+import static uk.co.qmunity.lib.client.gui.GuiRenderingUtils.mc;
 
 /**
  * @author MineMaarten
@@ -97,7 +96,7 @@ public class QLGuiContainerBase extends GuiContainer implements IWidgetListener,
 
         widgets.clear();
         super.setWorldAndResolution(par1Minecraft, par2, par3);
-        resolution = new ScaledResolution(mc(), mc().displayWidth, mc().displayHeight);
+        resolution = new ScaledResolution(mc());
     }
 
     public ResourceLocation getBackground() {
@@ -156,7 +155,7 @@ public class QLGuiContainerBase extends GuiContainer implements IWidgetListener,
     }
 
     @Override
-    public void mouseClicked(int mx, int my, int btn) {
+    public void mouseClicked(int mx, int my, int btn) throws IOException {
 
         super.mouseClicked(mx, my, btn);
 
@@ -166,10 +165,7 @@ public class QLGuiContainerBase extends GuiContainer implements IWidgetListener,
     }
 
     @Override
-    public void mouseMovedOrUp(int mx, int my, int btn) {
-
-        super.mouseMovedOrUp(mx, my, btn);
-
+    protected void mouseReleased(int mx, int my, int btn) {
         if (btn == -1) {
             for (IGuiWidget widget : getWidgets())
                 if (widget.isMouseOver(mx - getLeft(), my - getTop()))
@@ -180,6 +176,7 @@ public class QLGuiContainerBase extends GuiContainer implements IWidgetListener,
                     widget.onMouseMoved(mx - getLeft(), my - getTop());
         }
     }
+
 
     @Override
     public void mouseClickMove(int mx, int my, int btn, long ticks) {
@@ -192,7 +189,7 @@ public class QLGuiContainerBase extends GuiContainer implements IWidgetListener,
     }
 
     @Override
-    public void keyTyped(char c, int k) {
+    public void keyTyped(char c, int k) throws IOException {
 
         super.keyTyped(c, k);
 
@@ -208,9 +205,9 @@ public class QLGuiContainerBase extends GuiContainer implements IWidgetListener,
 
     @SuppressWarnings("unchecked")
     @SubscribeEvent
-    public void onClientTick(ClientTickEvent event) {
+    public void onClientTick(TickEvent.ClientTickEvent event) {
 
-        if (event.phase != Phase.END)
+        if (event.phase != TickEvent.Phase.END)
             return;
 
         for (IGuiWidget widget : getWidgets())
@@ -221,19 +218,19 @@ public class QLGuiContainerBase extends GuiContainer implements IWidgetListener,
         int dWheel = InputHelper.getDWheel();
         if (dWheel != 0) {
             for (Slot s : (List<Slot>) inventorySlots.inventorySlots) {
-                if (s instanceof ISlotPhantom && s.getHasStack() && x >= s.xDisplayPosition && x < s.xDisplayPosition + 16
-                        && y >= s.yDisplayPosition && y < s.yDisplayPosition + 16) {
+                if (s instanceof ISlotPhantom && s.getHasStack() && x >= s.xPos && x < s.xPos + 16
+                        && y >= s.yPos && y < s.yPos + 16) {
                     ItemStack stack = s.getStack().copy();
 
                     if (dWheel < 0)
-                        stack.stackSize = Math.min(stack.stackSize - 1,
-                                Math.min(stack.getMaxStackSize(), s.inventory.getInventoryStackLimit()));
+                        stack.setCount(Math.min(stack.getCount()- 1,
+                                Math.min(stack.getMaxStackSize(), s.inventory.getInventoryStackLimit())));
                     else if (dWheel > 0)
-                        stack.stackSize = Math.min(stack.stackSize + 1,
-                                Math.min(stack.getMaxStackSize(), s.inventory.getInventoryStackLimit()));
+                        stack.setCount(Math.min(stack.getCount() + 1,
+                                Math.min(stack.getMaxStackSize(), s.inventory.getInventoryStackLimit())));
 
-                    if (stack.stackSize <= 0)
-                        stack = null;
+                    if (stack.getCount() <= 0)
+                        stack = ItemStack.EMPTY;
                     s.putStack(stack);
 
                     break;

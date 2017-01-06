@@ -1,5 +1,8 @@
 package uk.co.qmunity.lib;
 
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.*;
 import uk.co.qmunity.lib.command.CommandQLib;
 import uk.co.qmunity.lib.compat.QLCompatManager;
 import uk.co.qmunity.lib.helper.RedstoneHelper;
@@ -8,14 +11,6 @@ import uk.co.qmunity.lib.network.NetworkHandler;
 import uk.co.qmunity.lib.part.MultipartCompat;
 import uk.co.qmunity.lib.part.MultipartSystemStandalone;
 import uk.co.qmunity.lib.util.QLog;
-import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.Mod.EventHandler;
-import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.event.FMLServerStartedEvent;
-import cpw.mods.fml.common.event.FMLServerStartingEvent;
 
 @Mod(modid = QLModInfo.MODID, name = QLModInfo.NAME, dependencies = "after:ForgeMultipart")
 public class QmunityLib {
@@ -23,7 +18,7 @@ public class QmunityLib {
     @SidedProxy(serverSide = "uk.co.qmunity.lib.CommonProxy", clientSide = "uk.co.qmunity.lib.client.ClientProxy")
     public static CommonProxy proxy;
 
-    @EventHandler
+    @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
 
         event.getModMetadata().version = QLModInfo.fullVersionString();
@@ -38,7 +33,7 @@ public class QmunityLib {
         QLCompatManager.preInit(event);
     }
 
-    @EventHandler
+    @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
 
         NetworkHandler.initQLib();
@@ -48,19 +43,19 @@ public class QmunityLib {
         QLCompatManager.init(event);
     }
 
-    @EventHandler
+    @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent event) {
 
         QLCompatManager.postInit(event);
     }
 
-    @EventHandler
+    @Mod.EventHandler
     public void serverStarting(FMLServerStartingEvent event) {
 
         event.registerServerCommand(new CommandQLib());
     }
 
-    @EventHandler
+    @Mod.EventHandler
     public void serverStarted(FMLServerStartedEvent event) {
 
         SystemInfoHelper.startTime = System.currentTimeMillis();

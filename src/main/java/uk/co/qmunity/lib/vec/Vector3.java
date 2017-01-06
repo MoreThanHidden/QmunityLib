@@ -1,16 +1,17 @@
 package uk.co.qmunity.lib.vec;
 
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
-
-import net.minecraft.util.Vec3;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import uk.co.qmunity.lib.Copyable;
 import uk.co.qmunity.lib.helper.MathHelper;
 import uk.co.qmunity.lib.model.Vertex;
 import uk.co.qmunity.lib.transform.Transformation;
 import uk.co.qmunity.lib.transform.Translation;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 
 /**
  * Most of this class was made by ChickenBones for CodeChickenLib but has been adapted for use in QmunityLib.<br>
@@ -46,9 +47,9 @@ public class Vector3 implements Copyable<Vector3> {
 
     public Vector3(BlockPos coord) {
 
-        x = coord.x;
-        y = coord.y;
-        z = coord.z;
+        x = coord.getX();
+        y = coord.getY();
+        z = coord.getZ();
     }
 
     public Vector3(Vertex vert) {
@@ -65,7 +66,7 @@ public class Vector3 implements Copyable<Vector3> {
         this.z = z;
     }
 
-    public Vector3(Vec3 vec) {
+    public Vector3(Vec3d vec) {
 
         this.x = vec.xCoord;
         this.y = vec.yCoord;
@@ -94,7 +95,7 @@ public class Vector3 implements Copyable<Vector3> {
         return this;
     }
 
-    public double getSide(ForgeDirection side) {
+    public double getSide(EnumFacing side) {
 
         switch (side) {
         case UP:
@@ -111,7 +112,7 @@ public class Vector3 implements Copyable<Vector3> {
         }
     }
 
-    public Vector3 setSide(ForgeDirection side, double value) {
+    public Vector3 setSide(EnumFacing side, double value) {
 
         switch (side) {
         case DOWN:
@@ -462,9 +463,9 @@ public class Vector3 implements Copyable<Vector3> {
         return this;
     }
 
-    public Vec3 toVec3() {
+    public Vec3d toVec3() {
 
-        return Vec3.createVectorHelper(x, y, z);
+        return new Vec3d(x, y, z);
     }
 
     public BlockPos toBlockPos(int operation) {

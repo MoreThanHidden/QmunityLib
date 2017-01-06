@@ -1,21 +1,25 @@
 package uk.co.qmunity.lib.block;
 
-import java.util.ArrayList;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 import uk.co.qmunity.lib.tile.QLTileBase;
+
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class QLBlockContainerBase extends QLBlockBase implements ITileEntityProvider {
 
@@ -59,75 +63,70 @@ public abstract class QLBlockContainerBase extends QLBlockBase implements ITileE
         return null;
     }
 
-    private QLTileBase get(IBlockAccess world, int x, int y, int z) {
+    private QLTileBase get(IBlockAccess world, BlockPos pos) {
 
-        TileEntity tile = world.getTileEntity(x, y, z);
+        TileEntity tile = world.getTileEntity(pos);
         if (tile instanceof QLTileBase)
             return (QLTileBase) tile;
         return null;
     }
 
     @Override
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
 
-        QLTileBase te = get(world, x, y, z);
+        QLTileBase te = get(world, pos);
         if (te == null)
             return false;
 
         if (getGuiId() >= 0) {
             if (!world.isRemote)
-                player.openGui(getModInstance(), getGuiId(), world, x, y, z);
+                player.openGui(getModInstance(), getGuiId(), world, pos.getX(), pos.getY(), pos.getZ());
             return true;
         }
 
-        return te.onActivated(player, new MovingObjectPosition(x, y, z, side, Vec3.createVectorHelper(x + hitX, y + hitY, z + hitZ)),
-                player.getCurrentEquippedItem());
+        return te.onActivated(player, new RayTraceResult(new Vec3d(pos.getX() + hitX, pos.getY() + hitY, pos.getZ() + hitZ), side, pos),
+                player.getHeldItem(hand));
     }
 
     @Override
-    public void onBlockClicked(World world, int x, int y, int z, EntityPlayer player) {
-
-        QLTileBase te = get(world, x, y, z);
+    public void onBlockClicked(World world, BlockPos pos, EntityPlayer player) {
+        QLTileBase te = get(world, pos);
         if (te == null)
             return;
 
-        te.onClicked(player, player.getCurrentEquippedItem());
+        te.onClicked(player, player.getHeldItem(EnumHand.MAIN_HAND));
     }
 
     @Override
-    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase entity, ItemStack stack) {
-
-        QLTileBase te = get(world, x, y, z);
+    public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
+        QLTileBase te = get(world, pos);
         if (te == null)
             return;
 
-        te.onPlacedBy(entity, stack);
+        te.onPlacedBy(placer, stack);
     }
 
     @Override
-    public void onNeighborBlockChange(World world, int x, int y, int z, Block block) {
-
-        QLTileBase te = get(world, x, y, z);
+    public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
+        QLTileBase te = get(world, pos);
         if (te == null)
             return;
 
-        te.onNeighborChange(block);
+        te.onNeighborChange(world.getBlockState(pos).getBlock());
     }
 
     @Override
-    public void onNeighborChange(IBlockAccess world, int x, int y, int z, int tileX, int tileY, int tileZ) {
-
-        QLTileBase te = get(world, x, y, z);
+    public void neighborChanged(IBlockState state, World world, BlockPos pos, Block blockIn, BlockPos fromPos) {
+        QLTileBase te = get(world, pos);
         if (te == null)
             return;
 
-        te.onNeighborTileChange(world.getTileEntity(tileX, tileY, tileZ));
+        te.onNeighborTileChange(world.getTileEntity(pos));
     }
 
     @Override
-    public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune) {
-
-        QLTileBase te = get(world, x, y, z);
+    public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
+        QLTileBase te = get(world, pos);
         if (te == null)
             return new ArrayList<ItemStack>();
 
@@ -135,46 +134,42 @@ public abstract class QLBlockContainerBase extends QLBlockBase implements ITileE
     }
 
     @Override
-    public boolean canProvidePower() {
-
+    public boolean canProvidePower(IBlockState state) {
         return canProvidePower;
     }
 
     @Override
-    public boolean canConnectRedstone(IBlockAccess world, int x, int y, int z, int side) {
-
-        if (!canProvidePower())
+    public boolean canConnectRedstone(IBlockState state, IBlockAccess world, BlockPos pos, @Nullable EnumFacing side) {
+        if (!canProvidePower(state))
             return false;
 
-        QLTileBase te = get(world, x, y, z);
+        QLTileBase te = get(world, pos);
         if (te != null)
-            return te.canConnectRedstone(ForgeDirection.getOrientation(side >= 0 && side < 4 ? Direction.directionToFacing[side] ^ 1 : 0));
+            return te.canConnectRedstone(side);
 
         return false;
     }
 
     @Override
-    public int isProvidingWeakPower(IBlockAccess world, int x, int y, int z, int side) {
-
-        if (!canProvidePower())
+    public int getWeakPower(IBlockState state, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
+        if (!canProvidePower(state))
             return 0;
 
-        QLTileBase te = get(world, x, y, z);
+        QLTileBase te = get(blockAccess, pos);
         if (te != null)
-            return te.getWeakRedstoneOutput(ForgeDirection.getOrientation(side ^ 1));
+            return te.getWeakRedstoneOutput(side);
 
         return 0;
     }
 
     @Override
-    public int isProvidingStrongPower(IBlockAccess world, int x, int y, int z, int side) {
-
-        if (!canProvidePower())
+    public int getStrongPower(IBlockState state, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
+        if (!canProvidePower(state))
             return 0;
 
-        QLTileBase te = get(world, x, y, z);
+        QLTileBase te = get(blockAccess, pos);
         if (te != null)
-            return te.getStrongRedstoneOutput(ForgeDirection.getOrientation(side ^ 1));
+            return te.getStrongRedstoneOutput(side);
 
         return 0;
     }

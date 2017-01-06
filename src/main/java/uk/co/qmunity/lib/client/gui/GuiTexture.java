@@ -1,22 +1,22 @@
 package uk.co.qmunity.lib.client.gui;
 
-import java.awt.Color;
-
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
 import uk.co.qmunity.lib.client.texture.CustomIcon;
 
+import java.awt.*;
+
 public final class GuiTexture {
 
-    public static GuiTexture blockTexture(IIcon itemIcon) {
+    public static GuiTexture blockTexture(TextureAtlasSprite itemIcon) {
 
-        return texture(TextureMap.locationBlocksTexture, itemIcon);
+        return texture(TextureMap.LOCATION_BLOCKS_TEXTURE, itemIcon);
     }
 
-    public static GuiTexture itemTexture(IIcon itemIcon) {
+    public static GuiTexture itemTexture(TextureAtlasSprite itemIcon) {
 
-        return texture(TextureMap.locationItemsTexture, itemIcon);
+        return texture(TextureMap.LOCATION_BLOCKS_TEXTURE, itemIcon);
     }
 
     public static GuiTexture texture(String path) {
@@ -29,28 +29,28 @@ public final class GuiTexture {
         return texture(resource, CustomIcon.FULL_ICON);
     }
 
-    public static GuiTexture texture(String path, IIcon icon) {
+    public static GuiTexture texture(String path, TextureAtlasSprite icon) {
 
         return texture(new ResourceLocation(path), icon);
     }
 
-    public static GuiTexture texture(ResourceLocation resource, IIcon icon) {
+    public static GuiTexture texture(ResourceLocation resource, TextureAtlasSprite icon) {
 
         return new GuiTexture(resource, icon);
     }
 
     private final ResourceLocation texture;
-    private final IIcon icon;
+    private final TextureAtlasSprite icon;
     private final int tint;
 
-    public GuiTexture(ResourceLocation texture, IIcon icon, int tint) {
+    public GuiTexture(ResourceLocation texture, TextureAtlasSprite icon, int tint) {
 
         this.texture = texture;
         this.icon = icon;
         this.tint = tint;
     }
 
-    private GuiTexture(ResourceLocation texture, IIcon icon) {
+    private GuiTexture(ResourceLocation texture, TextureAtlasSprite icon) {
 
         this(texture, icon, 0xFFFFFF);
     }
@@ -60,7 +60,7 @@ public final class GuiTexture {
         return texture;
     }
 
-    public IIcon getIcon() {
+    public TextureAtlasSprite getIcon() {
 
         return icon;
     }

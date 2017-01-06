@@ -3,6 +3,10 @@ package uk.co.qmunity.lib.network;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufProcessor;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,11 +16,6 @@ import java.nio.ByteOrder;
 import java.nio.channels.GatheringByteChannel;
 import java.nio.channels.ScatteringByteChannel;
 import java.nio.charset.Charset;
-
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.PacketBuffer;
-import cpw.mods.fml.common.network.ByteBufUtils;
 
 /**
  * QMunityLib's readable version of Minecraft's {@link PacketBuffer}. Includes (properly named) helper methods for writing and reading Strings,

@@ -1,5 +1,6 @@
 package uk.co.qmunity.lib.compat.fmp;
-
+/*
+Not Updated to 1.11
 import uk.co.qmunity.lib.compat.QLDependencies;
 import uk.co.qmunity.lib.part.MultipartCompat;
 import uk.co.qmunity.lib.util.IModule;
@@ -33,3 +34,4 @@ public class CompatModuleFMP implements IModule {
     }
 
 }
+*/

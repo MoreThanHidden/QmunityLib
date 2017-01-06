@@ -1,32 +1,22 @@
 package uk.co.qmunity.lib.tile;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.UUID;
-
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 import uk.co.qmunity.lib.client.render.RenderMultipart;
 import uk.co.qmunity.lib.network.MCByteBuf;
 import uk.co.qmunity.lib.network.packet.PacketCPart;
-import uk.co.qmunity.lib.part.IPartHolder;
-import uk.co.qmunity.lib.part.IQLPart;
-import uk.co.qmunity.lib.part.IRedstonePart;
-import uk.co.qmunity.lib.part.ISlottedPart;
-import uk.co.qmunity.lib.part.ISolidPart;
-import uk.co.qmunity.lib.part.PartRegistry;
-import uk.co.qmunity.lib.part.PartSlot;
-import uk.co.qmunity.lib.raytrace.QMovingObjectPosition;
+import uk.co.qmunity.lib.part.*;
+import uk.co.qmunity.lib.raytrace.QRayTraceResult;
 import uk.co.qmunity.lib.vec.Cuboid;
 import uk.co.qmunity.lib.vec.Vector3;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 public class TileMultipart extends QLTileBase implements IPartHolder {
 
@@ -36,25 +26,12 @@ public class TileMultipart extends QLTileBase implements IPartHolder {
     @Override
     public World getWorld() {
 
-        return getWorldObj();
+        return world;
     }
 
     @Override
-    public int getX() {
-
-        return xCoord;
-    }
-
-    @Override
-    public int getY() {
-
-        return yCoord;
-    }
-
-    @Override
-    public int getZ() {
-
-        return zCoord;
+    public BlockPos getPos(){
+        return pos;
     }
 
     @Override
@@ -157,8 +134,8 @@ public class TileMultipart extends QLTileBase implements IPartHolder {
 
         // Remove tile if needed
         if (getParts().isEmpty() && getWorld() != null) {
-            getWorld().setBlockToAir(getX(), getY(), getZ());
-            getWorld().removeTileEntity(getX(), getY(), getZ());
+            getWorld().setBlockToAir(getPos());
+            getWorld().removeTileEntity(getPos());
         }
 
         // Notify neighbors
@@ -202,7 +179,7 @@ public class TileMultipart extends QLTileBase implements IPartHolder {
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound tag) {
+    public NBTTagCompound writeToNBT(NBTTagCompound tag) {
 
         super.writeToNBT(tag);
 
@@ -217,6 +194,7 @@ public class TileMultipart extends QLTileBase implements IPartHolder {
             list.appendTag(t);
         }
         tag.setTag("parts", list);
+        return tag;
     }
 
     @Override
@@ -266,13 +244,13 @@ public class TileMultipart extends QLTileBase implements IPartHolder {
         }
     }
 
-    public QMovingObjectPosition rayTrace(Vec3 start, Vec3 end) {
+    public QRayTraceResult rayTrace(Vec3d start, Vec3d end) {
 
-        QMovingObjectPosition closest = null;
+        QRayTraceResult closest = null;
         double dist = Double.MAX_VALUE;
 
         for (IQLPart p : getParts()) {
-            QMovingObjectPosition mop = p.rayTrace(start, end);
+            QRayTraceResult mop = p.rayTrace(start, end);
             if (mop != null) {
                 double d = mop.hitVec.distanceTo(start);
                 if (closest == null || d <= dist) {
@@ -286,7 +264,7 @@ public class TileMultipart extends QLTileBase implements IPartHolder {
 
     public void addCollisionBoxesToList(List<Cuboid> boxes, AxisAlignedBB bounds) {
 
-        Vector3 pos = new Vector3(getX(), getY(), getZ());
+        Vector3 pos = new Vector3(getPos());
         Cuboid bounds_ = new Cuboid(bounds).sub(pos);
         for (IQLPart p : getParts())
             for (Cuboid c : p.getCollisionBoxes())
@@ -294,32 +272,32 @@ public class TileMultipart extends QLTileBase implements IPartHolder {
                     boxes.add(c.copy().add(pos));
     }
 
-    public boolean isSideSolid(ForgeDirection side) {
+    public boolean isSideSolid(EnumFacing side) {
 
         IQLPart part = getPartInSlot(PartSlot.face(side).mask);
         return part != null && part instanceof ISolidPart ? ((ISolidPart) part).isSideSolid(side) : false;
     }
 
     @Override
-    public boolean canConnectRedstone(ForgeDirection side) {
+    public boolean canConnectRedstone(EnumFacing side) {
 
-        return canConnectRedstone(ForgeDirection.UNKNOWN, side);
+        return canConnectRedstone(null, side);
     }
 
     @Override
-    public int getWeakRedstoneOutput(ForgeDirection side) {
+    public int getWeakRedstoneOutput(EnumFacing side) {
 
-        return getWeakRedstoneOutput(ForgeDirection.UNKNOWN, side);
+        return getWeakRedstoneOutput(null, side);
     }
 
     @Override
-    public int getStrongRedstoneOutput(ForgeDirection side) {
+    public int getStrongRedstoneOutput(EnumFacing side) {
 
-        return getStrongRedstoneOutput(ForgeDirection.UNKNOWN, side);
+        return getStrongRedstoneOutput(null, side);
     }
 
     @Override
-    public boolean canConnectRedstone(ForgeDirection face, ForgeDirection side) {
+    public boolean canConnectRedstone(EnumFacing face, EnumFacing side) {
 
         // Side
         IQLPart part = getPartInSlot(PartSlot.face(side).ordinal());
@@ -329,7 +307,7 @@ public class TileMultipart extends QLTileBase implements IPartHolder {
             return false;
         }
 
-        if (face != ForgeDirection.UNKNOWN) {
+        if (face != null) {
             // Face-side edge
             part = getPartInSlot(PartSlot.edgeBetween(face, side).ordinal());
             if (part != null) {
@@ -355,7 +333,7 @@ public class TileMultipart extends QLTileBase implements IPartHolder {
                 if (part instanceof IRedstonePart && ((IRedstonePart) part).canConnectRedstone(side))
                     return true;
             // Sides
-            for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS)
+            for (EnumFacing d : EnumFacing.VALUES)
                 if (d != side && d != side.getOpposite())
                     if (canConnectRedstone(d, side))
                         return true;
@@ -364,7 +342,7 @@ public class TileMultipart extends QLTileBase implements IPartHolder {
     }
 
     @Override
-    public int getWeakRedstoneOutput(ForgeDirection face, ForgeDirection side) {
+    public int getWeakRedstoneOutput(EnumFacing face, EnumFacing side) {
 
         // Side
         IQLPart part = getPartInSlot(PartSlot.face(side).ordinal());
@@ -374,7 +352,7 @@ public class TileMultipart extends QLTileBase implements IPartHolder {
             return 0;
         }
 
-        if (face != ForgeDirection.UNKNOWN) {
+        if (face != null) {
             // Face-side edge
             part = getPartInSlot(PartSlot.edgeBetween(face, side).ordinal());
             if (part != null) {
@@ -401,7 +379,7 @@ public class TileMultipart extends QLTileBase implements IPartHolder {
                 if (part instanceof IRedstonePart)
                     pow = Math.max(pow, ((IRedstonePart) part).getWeakPower(side));
             // Sides
-            for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS)
+            for (EnumFacing d : EnumFacing.VALUES)
                 if (d != side && d != side.getOpposite())
                     pow = Math.max(pow, getWeakRedstoneOutput(d, side));
             // Non-slotted parts
@@ -413,7 +391,7 @@ public class TileMultipart extends QLTileBase implements IPartHolder {
     }
 
     @Override
-    public int getStrongRedstoneOutput(ForgeDirection face, ForgeDirection side) {
+    public int getStrongRedstoneOutput(EnumFacing face, EnumFacing side) {
 
         // Side
         IQLPart part = getPartInSlot(PartSlot.face(side).ordinal());
@@ -423,7 +401,7 @@ public class TileMultipart extends QLTileBase implements IPartHolder {
             return 0;
         }
 
-        if (face != ForgeDirection.UNKNOWN) {
+        if (face != null) {
             // Face-side edge
             part = getPartInSlot(PartSlot.edgeBetween(face, side).ordinal());
             if (part != null) {
@@ -450,7 +428,7 @@ public class TileMultipart extends QLTileBase implements IPartHolder {
                 if (part instanceof IRedstonePart)
                     pow = Math.max(pow, ((IRedstonePart) part).getStrongPower(side));
             // Sides
-            for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS)
+            for (EnumFacing d : EnumFacing.VALUES)
                 if (d != side && d != side.getOpposite())
                     pow = Math.max(pow, getStrongRedstoneOutput(d, side));
             return pow;
@@ -468,7 +446,7 @@ public class TileMultipart extends QLTileBase implements IPartHolder {
             else
                 box = b;
         }
-        return box != null ? box.offset(getX(), getY(), getZ()) : super.getRenderBoundingBox();
+        return box != null ? box.offset(getPos()) : super.getRenderBoundingBox();
     }
 
     @Override

@@ -1,25 +1,24 @@
 package uk.co.qmunity.lib.client.gui;
 
-import static uk.co.qmunity.lib.client.gui.GuiRenderingUtils.*;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
-
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.opengl.GL11;
-
 import uk.co.qmunity.lib.client.gui.widget.IGuiWidget;
 import uk.co.qmunity.lib.client.gui.widget.IWidgetAction;
 import uk.co.qmunity.lib.client.gui.widget.IWidgetContainer;
 import uk.co.qmunity.lib.client.gui.widget.IWidgetListener;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent;
-import cpw.mods.fml.common.gameevent.TickEvent.Phase;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static uk.co.qmunity.lib.client.gui.GuiRenderingUtils.drawHorizontalAlignedString;
+import static uk.co.qmunity.lib.client.gui.GuiRenderingUtils.mc;
 
 /**
  * @author MineMaarten
@@ -145,7 +144,7 @@ public class GuiBase extends GuiScreen implements IWidgetListener, IWidgetContai
     }
 
     @Override
-    public void mouseClicked(int mx, int my, int btn) {
+    public void mouseClicked(int mx, int my, int btn) throws IOException {
 
         super.mouseClicked(mx, my, btn);
 
@@ -155,9 +154,8 @@ public class GuiBase extends GuiScreen implements IWidgetListener, IWidgetContai
     }
 
     @Override
-    public void mouseMovedOrUp(int mx, int my, int btn) {
-
-        super.mouseMovedOrUp(mx, my, btn);
+    protected void mouseReleased(int mx, int my, int btn) {
+        super.mouseReleased(mx, my, btn);
 
         if (btn == -1) {
             for (IGuiWidget widget : getWidgets())
@@ -181,7 +179,7 @@ public class GuiBase extends GuiScreen implements IWidgetListener, IWidgetContai
     }
 
     @Override
-    public void keyTyped(char c, int k) {
+    public void keyTyped(char c, int k) throws IOException {
 
         super.keyTyped(c, k);
 
@@ -196,9 +194,9 @@ public class GuiBase extends GuiScreen implements IWidgetListener, IWidgetContai
     // Widget ticking
 
     @SubscribeEvent
-    public void onClientTick(ClientTickEvent event) {
+    public void onClientTick(TickEvent.ClientTickEvent event) {
 
-        if (event.phase == Phase.END)
+        if (event.phase == TickEvent.Phase.END)
             for (IGuiWidget widget : getWidgets())
                 widget.update();
     }

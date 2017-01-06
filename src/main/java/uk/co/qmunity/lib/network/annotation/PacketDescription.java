@@ -1,12 +1,12 @@
 package uk.co.qmunity.lib.network.annotation;
 
-import java.util.List;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import uk.co.qmunity.lib.network.LocatedPacket;
 import uk.co.qmunity.lib.network.MCByteBuf;
 import uk.co.qmunity.lib.tile.QLTileBase;
+
+import java.util.List;
 
 /**
  * @author MineMaarten
@@ -24,7 +24,7 @@ public class PacketDescription extends LocatedPacket<PacketDescription> {
 
     public PacketDescription(QLTileBase te) {
 
-        super(te.xCoord, te.yCoord, te.zCoord);
+        super(te.getPos());
         values = new Object[te.getDescriptionFields().size()];
         types = new byte[values.length];
         for (int i = 0; i < values.length; i++) {
@@ -64,7 +64,7 @@ public class PacketDescription extends LocatedPacket<PacketDescription> {
     @Override
     public void handleClientSide(EntityPlayer player) {
 
-        TileEntity te = getWorldPos(player.worldObj).getTileEntity();
+        TileEntity te = getWorldPos(player.world).getTileEntity();
         if (te instanceof QLTileBase) {
             List<SyncedField> descFields = ((QLTileBase) te).getDescriptionFields();
             if (descFields != null && descFields.size() == types.length) {

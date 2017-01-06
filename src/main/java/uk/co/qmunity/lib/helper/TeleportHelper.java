@@ -1,11 +1,12 @@
 package uk.co.qmunity.lib.helper;
 
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.Teleporter;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ChunkCoordinates;
 
 /**
  * Created by Quetzi on 26/02/15.
@@ -36,14 +37,14 @@ public class TeleportHelper {
             private int    y;
             private int    z;
 
-            public TeleportEntry(String player, int dim, int x, int y, int z) {
+            public TeleportEntry(String player, int dim, BlockPos pos) {
 
                 this.player = player;
                 this.type = "location";
                 this.dim = dim;
-                this.x = x;
-                this.y = y;
-                this.z = z;
+                this.x = pos.getX();
+                this.y = pos.getY();
+                this.z = pos.getZ();
             }
 
             public TeleportEntry(String player) {
@@ -77,9 +78,9 @@ public class TeleportHelper {
             return this.queue.add(new TeleportEntry(player));
         }
 
-        public boolean addToQueue(String player, int dim, int x, int y, int z) {
+        public boolean addToQueue(String player, int dim, BlockPos pos) {
 
-            return this.queue.add(new TeleportEntry(player.toLowerCase(), dim, x, y, z));
+            return this.queue.add(new TeleportEntry(player.toLowerCase(), dim, pos));
         }
 
         public void clearQueue() {
@@ -93,7 +94,7 @@ public class TeleportHelper {
                     if (te.type.equals("default")) {
                         sendToDefaultSpawn(te.getPlayer());
                     } else {
-                        sendToLocation(player, te.getDim(), te.getX(), te.getY(), te.getZ());
+                        sendToLocation(player, te.getDim(), new BlockPos(te.getX(), te.getY(), te.getZ()));
                     }
                     remove(player);
                     return true;
@@ -131,15 +132,15 @@ public class TeleportHelper {
         }
     }
 
-    public static boolean movePlayer(String playername, int dim, ChunkCoordinates dest) {
+    public static boolean movePlayer(String playername, int dim, BlockPos dest) {
 
-        EntityPlayerMP player = MinecraftServer.getServer().getConfigurationManager().func_152612_a(playername);
+        EntityPlayerMP player = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(playername);
 
-        if (MinecraftServer.getServer().getConfigurationManager().func_152612_a(playername) != null) {
+        if (FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(playername) != null) {
             if (player.dimension != dim) {
-                MinecraftServer.getServer().getConfigurationManager().transferPlayerToDimension(player, dim);
+                FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().transferPlayerToDimension(player, dim, new Teleporter(player.getServerWorld()));
             }
-            player.setPositionAndUpdate(dest.posX, dest.posY, dest.posZ);
+            player.setPositionAndUpdate(dest.getX(), dest.getY(), dest.getZ());
             return true;
         } else {
             queuePlayer(playername, dim, dest);
@@ -149,8 +150,8 @@ public class TeleportHelper {
 
     public static boolean sendToDefaultSpawn(String playername) {
 
-        if (MinecraftServer.getServer().getConfigurationManager().func_152612_a(playername) != null) {
-            EntityPlayerMP player = MinecraftServer.getServer().getConfigurationManager().func_152612_a(playername);
+        if (FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(playername) != null) {
+            EntityPlayerMP player = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(playername);
             if (player.getBedLocation(0) != null) {
                 return sendToBed(playername);
             } else {
@@ -163,26 +164,26 @@ public class TeleportHelper {
 
     public static boolean sendToBed(String playername) {
 
-        EntityPlayerMP player = MinecraftServer.getServer().getConfigurationManager().func_152612_a(playername);
-        ChunkCoordinates dest = player.getBedLocation(0);
+        EntityPlayerMP player = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(playername);
+        BlockPos dest = player.getBedLocation(0);
         return movePlayer(playername, 0, dest);
     }
 
     public static boolean sendToDimension(String playername, int dim) {
 
-        ChunkCoordinates dest = MinecraftServer.getServer().worldServerForDimension(dim).getSpawnPoint();
+        BlockPos dest = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(dim).getSpawnPoint();
         return movePlayer(playername, dim, dest);
     }
 
-    public static boolean sendToLocation(String playername, int dim, int x, int y, int z) {
+    public static boolean sendToLocation(String playername, int dim, BlockPos pos) {
 
-        return movePlayer(playername, dim, new ChunkCoordinates(x, y, z));
+        return movePlayer(playername, dim, pos);
     }
 
-    private static boolean queuePlayer(String playername, int dim, ChunkCoordinates dest) {
+    private static boolean queuePlayer(String playername, int dim, BlockPos dest) {
 
         if (!teleportQueue.isQueued(playername)) {
-            return teleportQueue.addToQueue(playername, dim, dest.posX, dest.posY, dest.posZ);
+            return teleportQueue.addToQueue(playername, dim, dest);
         }
         return false;
     }

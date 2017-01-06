@@ -1,29 +1,28 @@
 package uk.co.qmunity.lib.util;
 
-import net.minecraftforge.common.util.ForgeDirection;
-import uk.co.qmunity.lib.vec.BlockPos;
+import net.minecraft.util.EnumFacing;
 
 public interface IRotatable {
 
-    public boolean rotate(ForgeDirection axis);
+    public boolean rotate(EnumFacing axis);
 
     public static interface IRotatableFace {
 
-        public void setFaceRotation(ForgeDirection face, int rotation);
+        public void setFaceRotation(EnumFacing face, int rotation);
 
-        public int getFaceRotation(ForgeDirection face);
+        public int getFaceRotation(EnumFacing face);
 
-        public boolean canRotateFace(ForgeDirection face);
+        public boolean canRotateFace(EnumFacing face);
 
     }
 
     public static interface IFacing {
 
-        public void setFacingDirection(ForgeDirection dir);
+        public void setFacingDirection(EnumFacing dir);
 
-        public ForgeDirection getFacingDirection();
+        public EnumFacing getFacingDirection();
 
-        public boolean canFaceDirection(ForgeDirection dir);
+        public boolean canFaceDirection(EnumFacing dir);
 
     }
 
@@ -47,18 +46,13 @@ public interface IRotatable {
             this.positiveDir = positiveDir;
         }
 
-        public BlockPos getAxis() {
+        public static EnumAxis getAxis(EnumFacing direction) {
 
-            return BlockPos.sideOffsets[positiveDir];
-        }
-
-        public static EnumAxis getAxis(ForgeDirection direction) {
-
-            if (direction == ForgeDirection.WEST || direction == ForgeDirection.EAST) {
+            if (direction == EnumFacing.WEST || direction == EnumFacing.EAST) {
                 return X;
-            } else if (direction == ForgeDirection.DOWN || direction == ForgeDirection.UP) {
+            } else if (direction == EnumFacing.DOWN || direction == EnumFacing.UP) {
                 return Y;
-            } else if (direction == ForgeDirection.NORTH || direction == ForgeDirection.SOUTH) {
+            } else if (direction == EnumFacing.NORTH || direction == EnumFacing.SOUTH) {
                 return Z;
             }
             return null;

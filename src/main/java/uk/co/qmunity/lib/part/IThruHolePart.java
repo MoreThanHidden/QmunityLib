@@ -1,9 +1,9 @@
 package uk.co.qmunity.lib.part;
 
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraft.util.EnumFacing;
 
 public interface IThruHolePart extends ISlottedPart {
 
-    public int getHollowSize(ForgeDirection side);
+    public int getHollowSize(EnumFacing side);
 
 }

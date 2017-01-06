@@ -1,26 +1,28 @@
 package uk.co.qmunity.lib.part;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
-
-import net.minecraft.client.particle.EffectRenderer;
+import net.minecraft.client.particle.ParticleManager;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.IIcon;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import uk.co.qmunity.lib.client.render.RenderContext;
 import uk.co.qmunity.lib.helper.ItemHelper;
 import uk.co.qmunity.lib.model.IVertexConsumer;
 import uk.co.qmunity.lib.network.MCByteBuf;
 import uk.co.qmunity.lib.network.packet.PacketCPart;
-import uk.co.qmunity.lib.raytrace.QMovingObjectPosition;
+import uk.co.qmunity.lib.raytrace.QRayTraceResult;
 import uk.co.qmunity.lib.raytrace.RayTracer;
 import uk.co.qmunity.lib.vec.Cuboid;
 import uk.co.qmunity.lib.vec.Vector3;
-import cpw.mods.fml.common.registry.GameRegistry;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
 public abstract class QLPart implements IQLPart {
 
@@ -33,21 +35,9 @@ public abstract class QLPart implements IQLPart {
     }
 
     @Override
-    public int getX() {
+    public BlockPos getPos() {
 
-        return getParent() != null ? getParent().getX() : 0;
-    }
-
-    @Override
-    public int getY() {
-
-        return getParent() != null ? getParent().getY() : 0;
-    }
-
-    @Override
-    public int getZ() {
-
-        return getParent() != null ? getParent().getZ() : 0;
+        return getParent() != null ? getParent().getPos() : new BlockPos(0,0,0);
     }
 
     @Override
@@ -101,13 +91,13 @@ public abstract class QLPart implements IQLPart {
     }
 
     @Override
-    public boolean renderBreaking(RenderContext context, IVertexConsumer consumer, QMovingObjectPosition hit, IIcon overrideIcon) {
+    public boolean renderBreaking(RenderContext context, IVertexConsumer consumer, QRayTraceResult hit, TextureAtlasSprite overrideIcon) {
 
         return renderStatic(context, consumer, 0) || renderStatic(context, consumer, 1);
     }
 
     @Override
-    public boolean drawHighlight(QMovingObjectPosition hit, EntityPlayer player, float partialTicks) {
+    public boolean drawHighlight(QRayTraceResult hit, EntityPlayer player, float partialTicks) {
 
         return false;
     }
@@ -119,12 +109,12 @@ public abstract class QLPart implements IQLPart {
     }
 
     @Override
-    public void addDestroyEffects(QMovingObjectPosition hit, EffectRenderer effectRenderer) {
+    public void addDestroyEffects(QRayTraceResult hit, ParticleManager effectRenderer) {
 
     }
 
     @Override
-    public void addHitEffects(QMovingObjectPosition hit, EffectRenderer effectRenderer) {
+    public void addHitEffects(QRayTraceResult hit, ParticleManager effectRenderer) {
 
     }
 
@@ -147,7 +137,7 @@ public abstract class QLPart implements IQLPart {
     }
 
     @Override
-    public QMovingObjectPosition rayTrace(Vec3 start, Vec3 end) {
+    public QRayTraceResult rayTrace(Vec3d start, Vec3d end) {
 
         return RayTracer.instance().rayTracePart(this, new Vector3(start), new Vector3(end));
     }
@@ -159,7 +149,7 @@ public abstract class QLPart implements IQLPart {
     }
 
     @Override
-    public ItemStack getPickBlock(EntityPlayer player, QMovingObjectPosition hit) {
+    public ItemStack getPickBlock(EntityPlayer player, QRayTraceResult hit) {
 
         return null;
     }
@@ -167,32 +157,32 @@ public abstract class QLPart implements IQLPart {
     @Override
     public List<ItemStack> getDrops() {
 
-        return Arrays.asList(new ItemStack(GameRegistry.findItem("qltest", "testpartql")));
+        return Arrays.asList(new ItemStack(Item.REGISTRY.getObject(new ResourceLocation("qltest", "testpartql"))));
     }
 
     @Override
-    public void harvest(EntityPlayer player, QMovingObjectPosition hit) {
+    public void harvest(EntityPlayer player, QRayTraceResult hit) {
 
         if (player == null || !player.capabilities.isCreativeMode)
             for (ItemStack item : getDrops())
-                ItemHelper.dropItem(getWorld(), getX(), getY(), getZ(), item);
+                ItemHelper.dropItem(getWorld(), getPos(), item);
         getParent().removePart(this);
     }
 
     @Override
-    public float getHardness(EntityPlayer player, QMovingObjectPosition hit) {
+    public float getHardness(EntityPlayer player, QRayTraceResult hit) {
 
         return 10;
     }
 
     @Override
-    public boolean onActivated(EntityPlayer player, QMovingObjectPosition hit, ItemStack item) {
+    public boolean onActivated(EntityPlayer player, QRayTraceResult hit, ItemStack item) {
 
         return false;
     }
 
     @Override
-    public void onClicked(EntityPlayer player, QMovingObjectPosition hit, ItemStack item) {
+    public void onClicked(EntityPlayer player, QRayTraceResult hit, ItemStack item) {
 
     }
 

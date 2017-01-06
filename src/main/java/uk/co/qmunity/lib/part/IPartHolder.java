@@ -3,7 +3,7 @@ package uk.co.qmunity.lib.part;
 import java.util.Collection;
 
 import net.minecraft.block.Block;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraft.util.EnumFacing;
 import uk.co.qmunity.lib.vec.IWorldLocation;
 
 public interface IPartHolder extends IWorldLocation {
@@ -34,11 +34,11 @@ public interface IPartHolder extends IWorldLocation {
 
     public void markRender();
 
-    public boolean canConnectRedstone(ForgeDirection face, ForgeDirection side);
+    public boolean canConnectRedstone(EnumFacing face, EnumFacing side);
 
-    public int getWeakRedstoneOutput(ForgeDirection face, ForgeDirection side);
+    public int getWeakRedstoneOutput(EnumFacing face, EnumFacing side);
 
-    public int getStrongRedstoneOutput(ForgeDirection face, ForgeDirection side);
+    public int getStrongRedstoneOutput(EnumFacing face, EnumFacing side);
 
     public Block getBlockType();
 

@@ -1,9 +1,10 @@
 package uk.co.qmunity.lib.model;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
-import uk.co.qmunity.lib.vec.BlockPos;
 
 public class LightMatrix implements IVertexOperation {
 
@@ -14,7 +15,7 @@ public class LightMatrix implements IVertexOperation {
     public int[][] brightness = new int[13][4];
 
     public IBlockAccess access;
-    public BlockPos pos = new BlockPos();
+    public BlockPos pos = new BlockPos(0,0,0);
 
     private int sampled = 0;
     private float[] aSamples = new float[27];
@@ -35,7 +36,7 @@ public class LightMatrix implements IVertexOperation {
     public void locate(IBlockAccess a, int x, int y, int z) {
 
         access = a;
-        pos.set(x, y, z);
+        pos = new BlockPos(x, y, z);
         computed = 0;
         sampled = 0;
     }
@@ -43,12 +44,13 @@ public class LightMatrix implements IVertexOperation {
     public void sample(int i) {
 
         if ((sampled & 1 << i) == 0) {
-            int x = pos.x + (i % 3) - 1;
-            int y = pos.y + (i / 9) - 1;
-            int z = pos.z + (i / 3 % 3) - 1;
-            Block b = access.getBlock(x, y, z);
-            bSamples[i] = access.getLightBrightnessForSkyBlocks(x, y, z, b.getLightValue(access, x, y, z));
-            aSamples[i] = b.getAmbientOcclusionLightValue();
+            int x = pos.getX() + (i % 3) - 1;
+            int y = pos.getY() + (i / 9) - 1;
+            int z = pos.getZ() + (i / 3 % 3) - 1;
+            IBlockState s = access.getBlockState(new BlockPos(x, y, z));
+            Block b = access.getBlockState(new BlockPos(x, y, z)).getBlock();
+            bSamples[i] = access.getCombinedLight(new BlockPos(x, y, z), b.getLightValue(s, access, new BlockPos(x, y, z)));
+            aSamples[i] = b.getAmbientOcclusionLightValue(s);
             sampled |= 1 << i;
         }
     }

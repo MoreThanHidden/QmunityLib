@@ -1,27 +1,27 @@
 package uk.co.qmunity.lib.client.texture;
 
-import net.minecraft.util.IIcon;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import uk.co.qmunity.lib.model.IVertexOperation;
 import uk.co.qmunity.lib.model.Vertex;
 
 public class IconTransformation implements IVertexOperation {
 
     public int id;
-    public IIcon icon;
-    public IIcon override;
+    public TextureAtlasSprite icon;
+    public TextureAtlasSprite override;
 
-    public IconTransformation(int id, IIcon icon) {
+    public IconTransformation(int id, TextureAtlasSprite icon) {
 
         this.id = id;
         this.icon = icon;
     }
 
-    public IconTransformation(IIcon icon) {
+    public IconTransformation(TextureAtlasSprite icon) {
 
         this(-1, icon);
     }
 
-    public IconTransformation setOverride(IIcon override) {
+    public IconTransformation setOverride(TextureAtlasSprite override) {
 
         this.override = override;
         return this;
@@ -30,7 +30,7 @@ public class IconTransformation implements IVertexOperation {
     @Override
     public void operate(Vertex vertex) {
 
-        IIcon icon = this.override != null ? this.override : this.icon;
+        TextureAtlasSprite icon = this.override != null ? this.override : this.icon;
 
         if (id == -1 || vertex.uv.texID == id)
             vertex.uv.set(icon.getInterpolatedU(vertex.uv.u * 16), icon.getInterpolatedV(vertex.uv.v * 16));

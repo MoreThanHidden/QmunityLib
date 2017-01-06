@@ -1,12 +1,12 @@
 package uk.co.qmunity.lib;
 
 import net.minecraft.block.Block;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import uk.co.qmunity.lib.block.BlockMultipart;
 import uk.co.qmunity.lib.tile.TileMultipart;
-import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.common.registry.GameRegistry.ObjectHolder;
 
-@ObjectHolder(QLModInfo.MODID)
+@GameRegistry.ObjectHolder(QLModInfo.MODID)
 public class QLBlocks {
 
     public static Block multipart;
@@ -24,7 +24,7 @@ public class QLBlocks {
 
     private static void register() {
 
-        GameRegistry.registerBlock(multipart, QLModInfo.MODID + ".multipart");
-        GameRegistry.registerTileEntity(TileMultipart.class, QLModInfo.MODID + ".multipart");
+        GameRegistry.register(multipart, new ResourceLocation(QLModInfo.MODID, QLModInfo.MODID + ".multipart"));
+        GameRegistry.registerTileEntity(TileMultipart.class, QLModInfo.MODID + ":" +QLModInfo.MODID + ".multipart");
     }
 }

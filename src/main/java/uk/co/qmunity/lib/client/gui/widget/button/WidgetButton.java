@@ -1,16 +1,15 @@
 package uk.co.qmunity.lib.client.gui.widget.button;
 
-import static uk.co.qmunity.lib.client.gui.GuiRenderingUtils.*;
 import net.minecraft.client.audio.PositionedSoundRecord;
-import net.minecraft.util.IIcon;
-import net.minecraft.util.ResourceLocation;
-
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.init.SoundEvents;
 import org.lwjgl.opengl.GL11;
-
 import uk.co.qmunity.lib.client.gui.GuiTexture;
 import uk.co.qmunity.lib.client.gui.widget.IWidgetContainer;
 import uk.co.qmunity.lib.client.gui.widget.SimpleWidget.LocatedWidget;
 import uk.co.qmunity.lib.vec.Vector4;
+
+import static uk.co.qmunity.lib.client.gui.GuiRenderingUtils.*;
 
 public class WidgetButton extends LocatedWidget<WidgetButton> {
 
@@ -87,7 +86,7 @@ public class WidgetButton extends LocatedWidget<WidgetButton> {
         if (tex == null)
             return;
 
-        IIcon icon = tex.getIcon();
+        TextureAtlasSprite icon = tex.getIcon();
         Vector4 c = Vector4.colorRGB(tex.getTint());
 
         GL11.glColor3d(c.x, c.y, c.z);
@@ -108,7 +107,7 @@ public class WidgetButton extends LocatedWidget<WidgetButton> {
 
     protected void playSound() {
 
-        mc().getSoundHandler().playSound(PositionedSoundRecord.func_147674_a(new ResourceLocation("gui.button.press"), 1.0F));
+        mc().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
     }
 
 }

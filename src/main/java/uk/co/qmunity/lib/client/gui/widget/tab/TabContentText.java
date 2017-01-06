@@ -1,19 +1,17 @@
 package uk.co.qmunity.lib.client.gui.widget.tab;
 
-import static uk.co.qmunity.lib.client.gui.GuiRenderingUtils.*;
+import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.resources.I18n;
+import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
+import uk.co.qmunity.lib.client.gui.widget.SimpleWidget;
+import uk.co.qmunity.lib.client.helper.InputHelper;
+import uk.co.qmunity.lib.client.texture.CustomIcon;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.resources.I18n;
-
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
-
-import uk.co.qmunity.lib.client.gui.widget.SimpleWidget;
-import uk.co.qmunity.lib.client.helper.InputHelper;
-import uk.co.qmunity.lib.client.texture.CustomIcon;
+import static uk.co.qmunity.lib.client.gui.GuiRenderingUtils.*;
 
 public class TabContentText extends SimpleTabContent<TabContentText> {
 
@@ -31,7 +29,7 @@ public class TabContentText extends SimpleTabContent<TabContentText> {
 
         this.text = text;
 
-        sr = new ScaledResolution(mc(), mc().displayWidth, mc().displayHeight);
+        sr = new ScaledResolution(mc());
         if (sr.getScaleFactor() >= 4)
             scale = 0.5;
         else if (sr.getScaleFactor() == 3)
@@ -163,7 +161,7 @@ public class TabContentText extends SimpleTabContent<TabContentText> {
         super.update();
 
         if (sr == null)
-            sr = new ScaledResolution(mc(), mc().displayWidth, mc().displayHeight);
+            sr = new ScaledResolution(mc());
 
         if (getParent().isMouseOver((Mouse.getX() / sr.getScaleFactor()) - getParent().getParent().getLeft(),
                 ((mc().displayHeight - Mouse.getY()) / sr.getScaleFactor()) - getParent().getParent().getTop())) {

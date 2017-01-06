@@ -1,9 +1,11 @@
 package uk.co.qmunity.lib.vec;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
 public class WorldPos extends BlockPos implements IWorldLocation {
 
@@ -17,7 +19,7 @@ public class WorldPos extends BlockPos implements IWorldLocation {
 
     public WorldPos(World world, Vector3 v) {
 
-        super(v);
+        super(new BlockPos(v.x, v.y, v.z));
         this.world = world;
     }
 
@@ -34,7 +36,7 @@ public class WorldPos extends BlockPos implements IWorldLocation {
 
     public WorldPos(TileEntity te) {
 
-        this(te.getWorldObj(), te.xCoord, te.yCoord, te.zCoord);
+        this(te.getWorld(), te.getPos());
     }
 
     @Override
@@ -43,7 +45,6 @@ public class WorldPos extends BlockPos implements IWorldLocation {
         return world;
     }
 
-    @Override
     public WorldPos copy() {
 
         return new WorldPos(this);
@@ -51,31 +52,35 @@ public class WorldPos extends BlockPos implements IWorldLocation {
 
     public Block getBlock() {
 
-        return world.getBlock(x, y, z);
+        return world.getBlockState(this).getBlock();
     }
 
-    public int getMetadata() {
+    public IBlockState getState() {
 
-        return world.getBlockMetadata(x, y, z);
+        return world.getBlockState(this);
     }
 
     public TileEntity getTileEntity() {
 
-        return world.getTileEntity(x, y, z);
+        return world.getTileEntity(this);
     }
 
     @Override
-    public WorldPos offset(ForgeDirection side) {
+    public WorldPos offset(EnumFacing side) {
 
         super.offset(side, 1);
         return this;
     }
 
     @Override
-    public WorldPos offset(ForgeDirection side, int amount) {
+    public WorldPos offset(EnumFacing side, int amount) {
 
         super.offset(side, amount);
         return this;
     }
 
+    @Override
+    public BlockPos getPos() {
+        return this;
+    }
 }

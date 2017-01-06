@@ -1,12 +1,10 @@
 package uk.co.qmunity.lib.compat;
 
-import uk.co.qmunity.lib.compat.fmp.CompatModuleFMP;
-import uk.co.qmunity.lib.compat.nei.CompatModuleNEI;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import uk.co.qmunity.lib.util.IModule;
 import uk.co.qmunity.lib.util.ModularRegistry;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
 public class QLCompatManager extends ModularRegistry<IModule> {
 
@@ -31,8 +29,8 @@ public class QLCompatManager extends ModularRegistry<IModule> {
     }
 
     static {
-        instance.register(Dependency.MOD.on(QLDependencies.NEI), CompatModuleNEI.class);
-        instance.register(Dependency.MOD.on(QLDependencies.FMP), CompatModuleFMP.class);
+        //instance.register(Dependency.MOD.on(QLDependencies.NEI), CompatModuleNEI.class);
+        //instance.register(Dependency.MOD.on(QLDependencies.FMP), CompatModuleFMP.class);
     }
 
 }

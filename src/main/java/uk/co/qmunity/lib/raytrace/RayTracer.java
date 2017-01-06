@@ -1,24 +1,25 @@
 package uk.co.qmunity.lib.raytrace;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.MovingObjectPosition.MovingObjectType;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import uk.co.qmunity.lib.helper.MathHelper;
 import uk.co.qmunity.lib.part.IQLPart;
-import uk.co.qmunity.lib.vec.BlockPos;
 import uk.co.qmunity.lib.vec.Cuboid;
 import uk.co.qmunity.lib.vec.Vector3;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Most of this class was made by ChickenBones for CodeChickenLib but has been adapted for use in QmunityLib.<br>
@@ -96,7 +97,7 @@ public class RayTracer {
         }
     }
 
-    public QMovingObjectPosition rayTraceCuboid(Vector3 start, Vector3 end, Cuboid cuboid) {
+    public QRayTraceResult rayTraceCuboid(Vector3 start, Vector3 end, Cuboid cuboid) {
 
         s_dist = Double.MAX_VALUE;
         s_side = -1;
@@ -107,42 +108,40 @@ public class RayTracer {
         if (s_side < 0)
             return null;
 
-        QMovingObjectPosition mop = new QMovingObjectPosition(new MovingObjectPosition(0, 0, 0, s_side, s_vec.toVec3()), cuboid);
+        QRayTraceResult mop = new QRayTraceResult(new RayTraceResult(s_vec.toVec3(), EnumFacing.getFront(s_side), new BlockPos(0,0,0)), cuboid);
         mop.typeOfHit = null;
         return mop;
     }
 
-    public QMovingObjectPosition rayTraceCuboid(Vector3 start, Vector3 end, Cuboid cuboid, BlockPos pos) {
+    public QRayTraceResult rayTraceCuboid(Vector3 start, Vector3 end, Cuboid cuboid, BlockPos pos) {
 
-        QMovingObjectPosition mop = rayTraceCuboid(start, end, cuboid);
+        QRayTraceResult mop = rayTraceCuboid(start, end, cuboid);
         if (mop != null) {
-            mop.typeOfHit = MovingObjectType.BLOCK;
-            mop.blockX = pos.x;
-            mop.blockY = pos.y;
-            mop.blockZ = pos.z;
+            mop.typeOfHit = RayTraceResult.Type.BLOCK;
+            mop = new QRayTraceResult(new RayTraceResult(mop.hitVec, mop.sideHit, pos), mop.part, mop.cube);
         }
         return mop;
     }
 
-    public QMovingObjectPosition rayTraceCuboid(Vector3 start, Vector3 end, Cuboid cuboid, Entity e) {
+    public QRayTraceResult rayTraceCuboid(Vector3 start, Vector3 end, Cuboid cuboid, Entity e) {
 
-        QMovingObjectPosition mop = rayTraceCuboid(start, end, cuboid);
+        QRayTraceResult mop = rayTraceCuboid(start, end, cuboid);
         if (mop != null) {
-            mop.typeOfHit = MovingObjectType.ENTITY;
+            mop.typeOfHit = RayTraceResult.Type.ENTITY;
             mop.entityHit = e;
         }
         return mop;
     }
 
-    public QMovingObjectPosition rayTraceCuboids(Vector3 start, Vector3 end, List<Cuboid> cuboids) {
+    public QRayTraceResult rayTraceCuboids(Vector3 start, Vector3 end, List<Cuboid> cuboids) {
 
         double c_dist = Double.MAX_VALUE;
-        QMovingObjectPosition c_hit = null;
+        QRayTraceResult c_hit = null;
 
         for (Cuboid cuboid : cuboids) {
-            QMovingObjectPosition mop = rayTraceCuboid(start, end, cuboid);
+            QRayTraceResult mop = rayTraceCuboid(start, end, cuboid);
             if (mop != null && s_dist < c_dist) {
-                mop = new QMovingObjectPosition(mop, cuboid);
+                mop = new QRayTraceResult(mop, cuboid);
                 c_dist = s_dist;
                 c_hit = mop;
                 c_cuboid = cuboid;
@@ -152,64 +151,61 @@ public class RayTracer {
         return c_hit;
     }
 
-    public QMovingObjectPosition rayTraceCuboids(Vector3 start, Vector3 end, List<Cuboid> cuboids, BlockPos pos, Block block) {
+    public QRayTraceResult rayTraceCuboids(Vector3 start, Vector3 end, List<Cuboid> cuboids, BlockPos pos, Block block) {
 
-        QMovingObjectPosition mop = rayTraceCuboids(start, end, cuboids);
+        QRayTraceResult mop = rayTraceCuboids(start, end, cuboids);
         if (mop != null) {
-            mop.typeOfHit = MovingObjectType.BLOCK;
-            mop.blockX = pos.x;
-            mop.blockY = pos.y;
-            mop.blockZ = pos.z;
+            mop.typeOfHit = RayTraceResult.Type.BLOCK;
+            mop = new QRayTraceResult(new RayTraceResult(mop.hitVec, mop.sideHit, pos), mop.part, mop.cube);
             mop.cube = new Cuboid(c_cuboid.toAABB());
             if (block != null)
-                c_cuboid.add(new Vector3(-pos.x, -pos.y, -pos.z)).setBlockBounds(block);
+                c_cuboid.add(new Vector3(-pos.getX(), -pos.getY(), -pos.getZ())).setBlockBounds(block);
         }
         return mop;
     }
 
     public void rayTraceCuboids(Vector3 start, Vector3 end, List<Cuboid> cuboids, BlockPos pos, Block block,
-            List<QMovingObjectPosition> hitList) {
+            List<QRayTraceResult> hitList) {
 
         for (Cuboid cuboid : cuboids) {
-            MovingObjectPosition mop = rayTraceCuboid(start, end, cuboid);
+            RayTraceResult mop = rayTraceCuboid(start, end, cuboid);
             if (mop != null) {
-                QMovingObjectPosition qmop = new QMovingObjectPosition(mop, cuboid);
-                qmop.typeOfHit = MovingObjectType.BLOCK;
-                qmop.blockX = pos.x;
-                qmop.blockY = pos.y;
-                qmop.blockZ = pos.z;
+                QRayTraceResult qmop = new QRayTraceResult(mop, cuboid);
+                qmop.typeOfHit = RayTraceResult.Type.BLOCK;
+                qmop = new QRayTraceResult(new RayTraceResult(qmop.hitVec, qmop.sideHit, pos), qmop.part, qmop.cube);
                 hitList.add(qmop);
             }
         }
     }
 
-    public QMovingObjectPosition rayTracePart(IQLPart part, Vector3 start, Vector3 end) {
+    public QRayTraceResult rayTracePart(IQLPart part, Vector3 start, Vector3 end) {
 
-        Vector3 translation = new Vector3(part.getX(), part.getY(), part.getZ());
+        Vector3 translation = new Vector3(part.getPos());
         List<Cuboid> cuboids = new ArrayList<Cuboid>();
         for (Cuboid c : part.getSelectionBoxes())
             cuboids.add(c.copy().add(translation));
-        QMovingObjectPosition mop = rayTraceCuboids(start, end, cuboids, new BlockPos(part), part.getParent() != null ? part.getParent()
+        QRayTraceResult mop = rayTraceCuboids(start, end, cuboids, part.getPos(), part.getParent() != null ? part.getParent()
                 .getBlockType() : null);
         if (mop != null)
             mop.part = part;
         return mop;
     }
 
-    public static MovingObjectPosition retraceBlock(World world, EntityPlayer player, int x, int y, int z) {
+    public static RayTraceResult retraceBlock(World world, EntityPlayer player, BlockPos pos) {
 
-        Block block = world.getBlock(x, y, z);
+        Block block = world.getBlockState(pos).getBlock();
+        IBlockState state = world.getBlockState(pos);
 
-        Vec3 headVec = getCorrectedHeadVec(player);
-        Vec3 lookVec = player.getLook(1.0F);
+        Vec3d headVec = getCorrectedHeadVec(player);
+        Vec3d lookVec = player.getLook(1.0F);
         double reach = getBlockReachDistance(player);
-        Vec3 endVec = headVec.addVector(lookVec.xCoord * reach, lookVec.yCoord * reach, lookVec.zCoord * reach);
-        return block.collisionRayTrace(world, x, y, z, headVec, endVec);
+        Vec3d endVec = headVec.addVector(lookVec.xCoord * reach, lookVec.yCoord * reach, lookVec.zCoord * reach);
+        return block.collisionRayTrace(state, world, pos, headVec, endVec);
     }
 
     private static double getBlockReachDistance_server(EntityPlayerMP player) {
 
-        return player.theItemInWorldManager.getBlockReachDistance();
+        return player.interactionManager.getBlockReachDistance();
     }
 
     @SideOnly(Side.CLIENT)
@@ -218,47 +214,50 @@ public class RayTracer {
         return Minecraft.getMinecraft().playerController.getBlockReachDistance();
     }
 
-    public static MovingObjectPosition reTrace(World world, EntityPlayer player) {
+    public static RayTraceResult reTrace(World world, EntityPlayer player) {
 
         return reTrace(world, player, getBlockReachDistance(player));
     }
 
-    public static MovingObjectPosition reTrace(World world, EntityPlayer player, double reach) {
+    public static RayTraceResult reTrace(World world, EntityPlayer player, double reach) {
 
-        Vec3 headVec = getCorrectedHeadVec(player);
-        Vec3 lookVec = player.getLook(1);
-        Vec3 endVec = headVec.addVector(lookVec.xCoord * reach, lookVec.yCoord * reach, lookVec.zCoord * reach);
-        return world.func_147447_a(headVec, endVec, true, false, true);
+        Vec3d headVec = getCorrectedHeadVec(player);
+        Vec3d lookVec = player.getLook(1);
+        Vec3d endVec = headVec.addVector(lookVec.xCoord * reach, lookVec.yCoord * reach, lookVec.zCoord * reach);
+        return world.rayTraceBlocks(headVec, endVec, true, false, true);
     }
 
-    public static Vec3 getCorrectedHeadVec(EntityPlayer player) {
+    public static Vec3d getCorrectedHeadVec(EntityPlayer player) {
 
-        Vec3 v = Vec3.createVectorHelper(player.posX, player.posY, player.posZ);
-        if (player.worldObj.isRemote) {
-            v.yCoord += player.getEyeHeight() - player.getDefaultEyeHeight();// compatibility with eye height changing mods
+        double x = player.posX;
+        double y = player.posY;
+        double z = player.posZ;
+
+        if (player.world.isRemote) {
+            y += player.getEyeHeight() - player.getDefaultEyeHeight();// compatibility with eye height changing mods
         } else {
-            v.yCoord += player.getEyeHeight();
+            y += player.getEyeHeight();
             if (player instanceof EntityPlayerMP && player.isSneaking())
-                v.yCoord -= 0.08;
+                y -= 0.08;
         }
-        return v;
+        return new Vec3d(x,y,z);
     }
 
-    public static Vec3 getStartVec(EntityPlayer player) {
+    public static Vec3d getStartVec(EntityPlayer player) {
 
         return getCorrectedHeadVec(player);
     }
 
     public static double getBlockReachDistance(EntityPlayer player) {
 
-        return player.worldObj.isRemote ? getBlockReachDistance_client()
+        return player.world.isRemote ? getBlockReachDistance_client()
                 : player instanceof EntityPlayerMP ? getBlockReachDistance_server((EntityPlayerMP) player) : 5D;
     }
 
-    public static Vec3 getEndVec(EntityPlayer player) {
+    public static Vec3d getEndVec(EntityPlayer player) {
 
-        Vec3 headVec = getCorrectedHeadVec(player);
-        Vec3 lookVec = player.getLook(1.0F);
+        Vec3d headVec = getCorrectedHeadVec(player);
+        Vec3d lookVec = player.getLook(1.0F);
         double reach = getBlockReachDistance(player);
         return headVec.addVector(lookVec.xCoord * reach, lookVec.yCoord * reach, lookVec.zCoord * reach);
     }

@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraft.util.EnumFacing;
 import uk.co.qmunity.lib.Copyable;
 import uk.co.qmunity.lib.transform.Rotation;
 import uk.co.qmunity.lib.transform.Transformation;
@@ -247,12 +247,12 @@ public class QLModel implements IVertexSource, Copyable<QLModel> {
         return this;
     }
 
-    public QLModel onFace(ForgeDirection face) {
+    public QLModel onFace(EnumFacing face) {
 
         return onFace(face, Vector3.center);
     }
 
-    public QLModel onFace(ForgeDirection face, Vector3 center) {
+    public QLModel onFace(EnumFacing face, Vector3 center) {
 
         return copy().apply(Rotation.sideRotations[face.ordinal()].at(center));
     }
@@ -265,8 +265,8 @@ public class QLModel implements IVertexSource, Copyable<QLModel> {
     public QLModel[] computeFaces(Vector3 center) {
 
         return new QLModel[] {//
-        onFace(ForgeDirection.DOWN, center), onFace(ForgeDirection.UP, center), onFace(ForgeDirection.NORTH, center),
-                onFace(ForgeDirection.SOUTH, center), onFace(ForgeDirection.WEST, center), onFace(ForgeDirection.EAST, center) };
+        onFace(EnumFacing.DOWN, center), onFace(EnumFacing.UP, center), onFace(EnumFacing.NORTH, center),
+                onFace(EnumFacing.SOUTH, center), onFace(EnumFacing.WEST, center), onFace(EnumFacing.EAST, center) };
     }
 
     public QLModel quarterRotation(int rot) {

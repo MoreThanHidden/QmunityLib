@@ -1,27 +1,23 @@
 package uk.co.qmunity.lib.network;
 
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import uk.co.qmunity.lib.vec.IWorldLocation;
 import uk.co.qmunity.lib.vec.WorldPos;
-import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 
 public abstract class LocatedPacket<T extends LocatedPacket<T>> extends Packet<T> {
 
-    protected int x, y, z;
+    protected BlockPos pos;
 
     public LocatedPacket(IWorldLocation location) {
 
-        this.x = location.getX();
-        this.y = location.getY();
-        this.z = location.getZ();
+        this.pos = location.getPos();
     }
 
-    public LocatedPacket(int x, int y, int z) {
+    public LocatedPacket(BlockPos pos) {
 
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        this.pos = pos;
     }
 
     public LocatedPacket() {
@@ -30,28 +26,24 @@ public abstract class LocatedPacket<T extends LocatedPacket<T>> extends Packet<T
 
     @Override
     public void fromBytes(MCByteBuf buf) {
-
-        x = buf.readInt();
-        y = buf.readInt();
-        z = buf.readInt();
+        pos = new BlockPos(buf.readInt(),buf.readInt(),buf.readInt());
     }
 
     @Override
     public void toBytes(MCByteBuf buf) {
-
-        buf.writeInt(x);
-        buf.writeInt(y);
-        buf.writeInt(z);
+        buf.writeInt(pos.getX());
+        buf.writeInt(pos.getY());
+        buf.writeInt(pos.getZ());
     }
 
-    public TargetPoint getTargetPoint(World world, double range) {
+    public NetworkRegistry.TargetPoint getTargetPoint(World world, double range) {
 
-        return new NetworkRegistry.TargetPoint(world.provider.dimensionId, x, y, z, range);
+        return new NetworkRegistry.TargetPoint(world.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), range);
     }
 
     protected WorldPos getWorldPos(World world) {
 
-        return new WorldPos(world, x, y, z);
+        return new WorldPos(world, pos);
     }
 
 }

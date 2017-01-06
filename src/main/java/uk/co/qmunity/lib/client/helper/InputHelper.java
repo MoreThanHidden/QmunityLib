@@ -1,11 +1,10 @@
 package uk.co.qmunity.lib.client.helper;
 
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.input.Mouse;
 
-import cpw.mods.fml.common.eventhandler.EventPriority;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent;
-import cpw.mods.fml.common.gameevent.TickEvent.Phase;
 
 public class InputHelper {
 
@@ -17,9 +16,9 @@ public class InputHelper {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public void onClientTick(ClientTickEvent event) {
+    public void onClientTick(TickEvent.ClientTickEvent event) {
 
-        if (event.phase != Phase.END)
+        if (event.phase != TickEvent.Phase.END)
             return;
 
         dWheel = Mouse.getDWheel();

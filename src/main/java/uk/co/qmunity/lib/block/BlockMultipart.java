@@ -1,47 +1,52 @@
 package uk.co.qmunity.lib.block;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.particle.EffectRenderer;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.Direction;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.EnumBlockRenderType;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import uk.co.qmunity.lib.QLModInfo;
 import uk.co.qmunity.lib.QmunityLib;
 import uk.co.qmunity.lib.client.render.RenderMultipart;
 import uk.co.qmunity.lib.helper.ItemHelper;
 import uk.co.qmunity.lib.part.IQLPart;
-import uk.co.qmunity.lib.raytrace.QMovingObjectPosition;
+import uk.co.qmunity.lib.raytrace.QRayTraceResult;
 import uk.co.qmunity.lib.raytrace.RayTracer;
 import uk.co.qmunity.lib.tile.TileMultipart;
 import uk.co.qmunity.lib.vec.Cuboid;
-import cpw.mods.fml.common.eventhandler.EventPriority;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class BlockMultipart extends BlockContainer {
 
+    AxisAlignedBB boundingBox;
+
     public BlockMultipart() {
 
-        super(Material.ground);
-        setBlockName(QLModInfo.MODID + ".multipart");
+        super(Material.GROUND);
+        setUnlocalizedName(QLModInfo.MODID + ".multipart");
         MinecraftForge.EVENT_BUS.register(this);
     }
 
@@ -51,117 +56,84 @@ public class BlockMultipart extends BlockContainer {
         return new TileMultipart();
     }
 
-    public static TileMultipart findTile(IBlockAccess world, int x, int y, int z) {
+    public static TileMultipart findTile(IBlockAccess world, BlockPos pos) {
 
-        TileEntity te = world.getTileEntity(x, y, z);
+        TileEntity te = world.getTileEntity(pos);
         if (te == null || !(te instanceof TileMultipart))
             return null;
         return (TileMultipart) te;
     }
 
     @Override
-    public boolean isNormalCube() {
-
+    public boolean isNormalCube(IBlockState state, IBlockAccess world, BlockPos pos) {
         return false;
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public boolean isBlockNormalCube() {
-
+    public boolean isOpaqueCube(IBlockState state) {
         return false;
     }
 
     @Override
-    public boolean isOpaqueCube() {
-
-        return false;
+    public EnumBlockRenderType getRenderType(IBlockState state) {
+        return EnumBlockRenderType.ENTITYBLOCK_ANIMATED;
     }
 
-    @Override
-    @SideOnly(Side.CLIENT)
-    public boolean canRenderInPass(int pass) {
-
-        RenderMultipart.pass = pass;
-
-        return true;
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public int getRenderBlockPass() {
-
-        return 1;
-    }
-
-    @Override
     @SideOnly(Side.CLIENT)
     public int getRenderType() {
 
         return RenderMultipart.RENDER_ID;
     }
 
+    @Nullable
     @Override
-    @SideOnly(Side.CLIENT)
-    public boolean renderAsNormalBlock() {
-
-        return false;
+    public RayTraceResult collisionRayTrace(IBlockState blockState, World worldIn, BlockPos pos, Vec3d start, Vec3d end) {
+        return retrace(worldIn, pos, start, end);
     }
 
-    @Override
-    public MovingObjectPosition collisionRayTrace(World world, int x, int y, int z, Vec3 start, Vec3 end) {
+    private QRayTraceResult retrace(World world, BlockPos pos, EntityPlayer player) {
 
-        return retrace(world, x, y, z, start, end);
+        return retrace(world, pos, RayTracer.getStartVec(player), RayTracer.getEndVec(player));
     }
 
-    private QMovingObjectPosition retrace(World world, int x, int y, int z, EntityPlayer player) {
+    private QRayTraceResult retrace(World world, BlockPos pos, Vec3d start, Vec3d end) {
 
-        return retrace(world, x, y, z, RayTracer.getStartVec(player), RayTracer.getEndVec(player));
-    }
-
-    private QMovingObjectPosition retrace(World world, int x, int y, int z, Vec3 start, Vec3 end) {
-
-        TileMultipart te = findTile(world, x, y, z);
+        TileMultipart te = findTile(world, pos);
         if (te == null)
             return null;
-        QMovingObjectPosition mop = te.rayTrace(start, end);
+        QRayTraceResult mop = te.rayTrace(start, end);
         if (mop == null)
             return null;
         return mop;
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public boolean addDestroyEffects(World world, int x, int y, int z, int meta, EffectRenderer effectRenderer) {
-
-        TileMultipart te = findTile(world, x, y, z);
+    public boolean addDestroyEffects(World world, BlockPos pos, ParticleManager manager) {
+        TileMultipart te = findTile(world, pos);
         if (te == null)
             return true;
-        QMovingObjectPosition mop = retrace(world, x, y, z, QmunityLib.proxy.getPlayer());
+        QRayTraceResult mop = retrace(world, pos, QmunityLib.proxy.getPlayer());
         if (mop == null || mop.part == null || mop.part.getParent() != te)
             return true;
-        mop.part.addDestroyEffects(mop, effectRenderer);
+        mop.part.addDestroyEffects(mop, manager);
         return true;
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public boolean addHitEffects(World world, MovingObjectPosition target, EffectRenderer effectRenderer) {
-
-        TileMultipart te = findTile(world, target.blockX, target.blockY, target.blockZ);
+    public boolean addHitEffects(IBlockState state, World world, RayTraceResult target, ParticleManager manager) {
+        TileMultipart te = findTile(world, target.getBlockPos());
         if (te == null)
             return true;
-        QMovingObjectPosition mop = retrace(world, target.blockX, target.blockY, target.blockZ, QmunityLib.proxy.getPlayer());
+        QRayTraceResult mop = retrace(world, target.getBlockPos(), QmunityLib.proxy.getPlayer());
         if (mop == null || mop.part == null || mop.part.getParent() != te)
             return true;
-        mop.part.addHitEffects(mop, effectRenderer);
+        mop.part.addHitEffects(mop, manager);
         return true;
     }
 
     @Override
-    public int getLightValue(IBlockAccess world, int x, int y, int z) {
-
-        TileMultipart te = findTile(world, x, y, z);
+    public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos) {
+        TileMultipart te = findTile(world, pos);
         if (te == null)
             return 0;
 
@@ -172,45 +144,42 @@ public class BlockMultipart extends BlockContainer {
     }
 
     @Override
-    public boolean removedByPlayer(World world, EntityPlayer player, int x, int y, int z) {
-
-        TileMultipart te = findTile(world, x, y, z);
-        QMovingObjectPosition mop = retrace(world, x, y, z, player);
+    public boolean removedByPlayer(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest) {
+        TileMultipart te = findTile(world, pos);
+        QRayTraceResult mop = retrace(world, pos, player);
 
         if (te == null || mop == null) {
             if (world.isRemote)
                 return true;
-            for (ItemStack stack : getDrops(world, x, y, z, 0, 0))
-                ItemHelper.dropItem(world, x, y, z, stack);
-            world.setBlockToAir(x, y, z);
-            world.removeTileEntity(x, y, z);
+            for (ItemStack stack : getDrops(world, pos, state, 0))
+                ItemHelper.dropItem(world, pos, stack);
+            world.setBlockToAir(pos);
+            world.removeTileEntity(pos);
             return true;
         }
 
         if (!world.isRemote)
             mop.part.harvest(player, mop);
 
-        return world.getTileEntity(x, y, z) == null;
+        return world.getTileEntity(pos) == null;
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
-    public void addCollisionBoxesToList(World world, int x, int y, int z, AxisAlignedBB bounds, List l, Entity entity) {
-
-        TileMultipart te = findTile(world, x, y, z);
+    public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn) {
+        TileMultipart te = findTile(worldIn, pos);
         if (te == null)
             return;
 
         List<Cuboid> boxes = new ArrayList<Cuboid>();
-        te.addCollisionBoxesToList(boxes, bounds);
+        te.addCollisionBoxesToList(boxes, entityBox);
         for (Cuboid c : boxes)
-            l.add(c.toAABB());
+            collidingBoxes.add(c.toAABB());
     }
 
-    @Override
-    public void onNeighborBlockChange(World world, int x, int y, int z, Block block) {
 
-        TileMultipart te = findTile(world, x, y, z);
+    @Override
+    public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
+        TileMultipart te = findTile(world, pos);
         if (te == null)
             return;
         for (IQLPart p : te.getParts())
@@ -218,9 +187,8 @@ public class BlockMultipart extends BlockContainer {
     }
 
     @Override
-    public void onNeighborChange(IBlockAccess world, int x, int y, int z, int tileX, int tileY, int tileZ) {
-
-        TileMultipart te = findTile(world, x, y, z);
+    public void neighborChanged(IBlockState state, World world, BlockPos pos, Block blockIn, BlockPos fromPos) {
+        TileMultipart te = findTile(world, pos);
         if (te == null)
             return;
         for (IQLPart p : te.getParts())
@@ -228,15 +196,8 @@ public class BlockMultipart extends BlockContainer {
     }
 
     @Override
-    public boolean getWeakChanges(IBlockAccess world, int x, int y, int z) {
-
-        return true;
-    }
-
-    @Override
-    public boolean isSideSolid(IBlockAccess world, int x, int y, int z, ForgeDirection side) {
-
-        TileMultipart te = findTile(world, x, y, z);
+    public boolean isSideSolid(IBlockState base_state, IBlockAccess world, BlockPos pos, EnumFacing side) {
+        TileMultipart te = findTile(world, pos);
         if (te == null)
             return false;
 
@@ -244,81 +205,66 @@ public class BlockMultipart extends BlockContainer {
     }
 
     @Override
-    public boolean canConnectRedstone(IBlockAccess world, int x, int y, int z, int side) {
-
-        TileMultipart te = findTile(world, x, y, z);
+    public boolean canConnectRedstone(IBlockState state, IBlockAccess world, BlockPos pos, @Nullable EnumFacing side) {
+        TileMultipart te = findTile(world, pos);
         if (te == null)
             return false;
-        return te.canConnectRedstone(ForgeDirection.getOrientation(side >= 0 && side < 4 ? Direction.directionToFacing[side] ^ 1 : 0));
+        return te.canConnectRedstone(side);
     }
 
     @Override
-    public int isProvidingWeakPower(IBlockAccess world, int x, int y, int z, int side) {
-
-        TileMultipart te = findTile(world, x, y, z);
+    public int getWeakPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
+        TileMultipart te = findTile(blockAccess, pos);
         if (te == null)
             return 0;
-        return te.getWeakRedstoneOutput(ForgeDirection.getOrientation(side ^ 1));
+        return te.getWeakRedstoneOutput(side);
     }
 
     @Override
-    public int isProvidingStrongPower(IBlockAccess world, int x, int y, int z, int side) {
-
-        TileMultipart te = findTile(world, x, y, z);
+    public int getStrongPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
+        TileMultipart te = findTile(blockAccess, pos);
         if (te == null)
             return 0;
-        return te.getStrongRedstoneOutput(ForgeDirection.getOrientation(side ^ 1));
+        return te.getStrongRedstoneOutput(side);
     }
 
     @Override
-    public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z) {
-
-        QMovingObjectPosition mop = retrace(world, x, y, z, QmunityLib.proxy.getPlayer());
+    public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player) {
+        QRayTraceResult mop = retrace(world, pos, QmunityLib.proxy.getPlayer());
         if (mop == null || mop.part == null)
             return null;
         return mop.part.getPickBlock(QmunityLib.proxy.getPlayer(), mop);
     }
 
     @Override
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float x_, float y_, float z_) {
-
-        QMovingObjectPosition mop = retrace(world, x, y, z, QmunityLib.proxy.getPlayer());
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+        QRayTraceResult mop = retrace(world, pos, QmunityLib.proxy.getPlayer());
         if (mop == null || mop.part == null)
             return false;
-        return mop.part.onActivated(player, mop, player.getCurrentEquippedItem());
+        return mop.part.onActivated(player, mop, player.getHeldItem(hand));
     }
 
     @Override
-    public void onBlockClicked(World world, int x, int y, int z, EntityPlayer player) {
-
-        QMovingObjectPosition mop = retrace(world, x, y, z, QmunityLib.proxy.getPlayer());
+    public void onBlockClicked(World world, BlockPos pos, EntityPlayer player) {
+        QRayTraceResult mop = retrace(world, pos, QmunityLib.proxy.getPlayer());
         if (mop == null || mop.part == null)
             return;
-        mop.part.onClicked(player, mop, player.getCurrentEquippedItem());
+        mop.part.onClicked(player, mop,  player.getHeldItem(EnumHand.MAIN_HAND));
     }
 
     @Override
-    public float getPlayerRelativeBlockHardness(EntityPlayer player, World world, int x, int y, int z) {
-
-        QMovingObjectPosition mop = retrace(world, x, y, z, player);
+    public float getPlayerRelativeBlockHardness(IBlockState state, EntityPlayer player, World world, BlockPos pos) {
+        QRayTraceResult mop = retrace(world, pos, player);
         if (mop == null || mop.part == null)
             return 1 / 100F;
         return 1F / mop.part.getHardness(player, mop);
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public void registerBlockIcons(IIconRegister reg) {
-
-        blockIcon = null;
-    }
-
-    @Override
-    public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune) {
-
+    public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
         ArrayList<ItemStack> l = new ArrayList<ItemStack>();
 
-        TileMultipart te = findTile(world, x, y, z);
+        TileMultipart te = findTile(world, pos);
         if (te != null)
             for (IQLPart p : te.getParts())
                 l.addAll(p.getDrops());
@@ -331,26 +277,33 @@ public class BlockMultipart extends BlockContainer {
     public void onDrawHighlight(DrawBlockHighlightEvent event) {
 
         try {
-            if (!(event.player.worldObj.getBlock(event.target.blockX, event.target.blockY, event.target.blockZ) instanceof BlockMultipart))
+            if (!(event.getPlayer().world.getBlockState(event.getTarget().getBlockPos()).getBlock() instanceof BlockMultipart))
                 return;
 
-            QMovingObjectPosition mop = event.target instanceof QMovingObjectPosition ? (QMovingObjectPosition) event.target : retrace(
-                    event.player.worldObj, event.target.blockX, event.target.blockY, event.target.blockZ, event.player);
+            QRayTraceResult mop = event.getTarget() instanceof QRayTraceResult ? (QRayTraceResult) event.getTarget() : retrace(
+                    event.getPlayer().world, event.getTarget().getBlockPos(), event.getPlayer());
             if (mop == null || mop.part == null)
                 return;
-            if (mop.part.drawHighlight(mop, event.player, event.partialTicks))
+            if (mop.part.drawHighlight(mop, event.getPlayer(), event.getPartialTicks()))
                 event.setCanceled(true);
         } catch (Exception ex) {
         }
     }
 
     @Override
-    public void randomDisplayTick(World world, int x, int y, int z, Random rnd) {
-
-        TileMultipart te = findTile(world, x, y, z);
+    public void randomDisplayTick(IBlockState stateIn, World world, BlockPos pos, Random rand) {
+        TileMultipart te = findTile(world, pos);
         if (te != null)
             for (IQLPart part : te.getParts())
-                part.randomDisplayTick(rnd);
+                part.randomDisplayTick(rand);
     }
 
+    @Override
+    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+        return boundingBox;
+    }
+
+    public void setBlockBounds(AxisAlignedBB boundingBox) {
+        this.boundingBox = boundingBox;
+    }
 }

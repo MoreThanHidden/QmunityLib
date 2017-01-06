@@ -68,7 +68,7 @@ public class PacketCPart extends LocatedPacket<PacketCPart> {
     public void handleClientSide(EntityPlayer player) {
 
         if (action == 0) { // Remove part
-            IPartHolder holder = MultipartCompat.getHolder(player.worldObj, x, y, z);
+            IPartHolder holder = MultipartCompat.getHolder(player.world, pos);
             part = holder.findPart(partID);
 
             holder.removePart(part);
@@ -77,10 +77,10 @@ public class PacketCPart extends LocatedPacket<PacketCPart> {
             part = PartRegistry.createPart(buf_.readString(), true);
             part.readUpdateData(buf_);
 
-            MultipartCompat.addPart(player.worldObj, x, y, z, part, partID);
+            MultipartCompat.addPart(player.world, pos, part, partID);
         } else if (action == 2) { // Update part
             MCByteBuf buf_ = new MCByteBuf(Unpooled.copiedBuffer(data));
-            IPartHolder holder = MultipartCompat.getHolder(player.worldObj, x, y, z);
+            IPartHolder holder = MultipartCompat.getHolder(player.world, pos);
 
             if (holder != null) {
                 part = holder.findPart(partID);

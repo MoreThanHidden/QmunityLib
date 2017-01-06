@@ -1,24 +1,24 @@
 package uk.co.qmunity.lib.helper;
 
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import net.minecraft.block.Block;
-import net.minecraft.util.Direction;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
 public class RedstoneHelper {
 
     public static interface IQLRedstoneProvider {
 
-        public boolean canProvideRedstoneFor(World world, int x, int y, int z);
+        public boolean canProvideRedstoneFor(World world, BlockPos pos);
 
-        public boolean canConnectRedstone(World world, int x, int y, int z, ForgeDirection face, ForgeDirection side);
+        public boolean canConnectRedstone(World world, BlockPos pos, EnumFacing face, EnumFacing side);
 
-        public int getWeakRedstoneOutput(World world, int x, int y, int z, ForgeDirection face, ForgeDirection side);
+        public int getWeakRedstoneOutput(World world, BlockPos pos, EnumFacing face, EnumFacing side);
 
-        public int getStrongRedstoneOutput(World world, int x, int y, int z, ForgeDirection face, ForgeDirection side);
+        public int getStrongRedstoneOutput(World world, BlockPos pos, EnumFacing face, EnumFacing side);
 
     }
 
@@ -34,109 +34,108 @@ public class RedstoneHelper {
         providers.add(provider);
     }
 
-    public static boolean canConnectRedstone(World world, int x, int y, int z, ForgeDirection side) {
+    public static boolean canConnectRedstone(World world, BlockPos pos, EnumFacing side) {
 
-        return canConnectRedstone(world, x, y, z, ForgeDirection.UNKNOWN, side);
+        return canConnectRedstone(world, pos, null, side);
     }
 
-    public static boolean canConnectRedstone(World world, int x, int y, int z, ForgeDirection face, ForgeDirection side) {
+    public static boolean canConnectRedstone(World world, BlockPos pos, EnumFacing face, EnumFacing side) {
 
         boolean provided = false;
         for (IQLRedstoneProvider provider : providers) {
-            if (provider.canProvideRedstoneFor(world, x, y, z)) {
-                if (provider.canConnectRedstone(world, x, y, z, face, side))
+            if (provider.canProvideRedstoneFor(world, pos)) {
+                if (provider.canConnectRedstone(world, pos, face, side))
                     return true;
                 provided = true;
             }
         }
         if (!provided)
-            return world.getBlock(x, y, z).canConnectRedstone(world, x, y, z,
-                    Direction.getMovementDirection(side.getOpposite().offsetX, side.getOpposite().offsetZ));
+            return world.getBlockState(pos).canProvidePower();
         return false;
     }
 
-    public static int getWeakRedstoneOutput(World world, int x, int y, int z, ForgeDirection side) {
+    public static int getWeakRedstoneOutput(World world, BlockPos pos, EnumFacing side) {
 
-        return getWeakRedstoneOutput(world, x, y, z, ForgeDirection.UNKNOWN, side);
+        return getWeakRedstoneOutput(world, pos, null, side);
     }
 
-    public static int getWeakRedstoneOutput(World world, int x, int y, int z, ForgeDirection face, ForgeDirection side) {
+    public static int getWeakRedstoneOutput(World world, BlockPos pos, EnumFacing face, EnumFacing side) {
 
         int pow = 0;
         boolean provided = false;
         for (IQLRedstoneProvider provider : providers) {
-            if (provider.canProvideRedstoneFor(world, x, y, z)) {
-                pow = Math.max(pow, provider.getWeakRedstoneOutput(world, x, y, z, face, side));
+            if (provider.canProvideRedstoneFor(world, pos)) {
+                pow = Math.max(pow, provider.getWeakRedstoneOutput(world, pos, face, side));
                 provided = true;
             }
         }
         if (!provided) {
-            Block b = world.getBlock(x, y, z);
-            pow = b.isProvidingWeakPower(world, x, y, z, side.ordinal() ^ 1);
-            if (b.isBlockNormalCube())
-                for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS)
+            IBlockState s = world.getBlockState(pos);
+            pow = s.getWeakPower(world, pos, side);
+            if (s.isBlockNormalCube())
+                for (EnumFacing d : EnumFacing.VALUES)
                     pow = Math.max(
                             pow,
-                            getStrongRedstoneOutput(world, x + d.offsetX, y + d.offsetY, z + d.offsetZ, ForgeDirection.UNKNOWN,
+                            getStrongRedstoneOutput(world, pos.offset(d), null,
                                     d.getOpposite()));
         }
         return pow;
     }
 
-    public static int getStrongRedstoneOutput(World world, int x, int y, int z, ForgeDirection side) {
+    public static int getStrongRedstoneOutput(World world, BlockPos pos, EnumFacing side) {
 
-        return getStrongRedstoneOutput(world, x, y, z, ForgeDirection.UNKNOWN, side);
+        return getStrongRedstoneOutput(world, pos, null, side);
     }
 
-    public static int getStrongRedstoneOutput(World world, int x, int y, int z, ForgeDirection face, ForgeDirection side) {
+    public static int getStrongRedstoneOutput(World world, BlockPos pos, EnumFacing face, EnumFacing side) {
 
         int pow = 0;
         boolean provided = false;
         for (IQLRedstoneProvider provider : providers) {
-            if (provider.canProvideRedstoneFor(world, x, y, z)) {
-                pow = Math.max(pow, provider.getStrongRedstoneOutput(world, x, y, z, face, side));
+            if (provider.canProvideRedstoneFor(world, pos)) {
+                pow = Math.max(pow, provider.getStrongRedstoneOutput(world, pos, face, side));
                 provided = true;
             }
         }
         if (!provided)
-            return world.getBlock(x, y, z).isProvidingWeakPower(world, x, y, z, side.ordinal() ^ 1);
+            return world.getBlockState(pos).getWeakPower(world, pos, side);
         return pow;
     }
 
-    public static int getWeakRedstoneInput(World world, int x, int y, int z) {
+    public static int getWeakRedstoneInput(World world, BlockPos pos) {
 
         int pow = 0;
-        for (ForgeDirection side : ForgeDirection.VALID_DIRECTIONS)
-            pow = Math.max(pow, getWeakRedstoneInput(world, x, y, z, side));
+        for (EnumFacing side : EnumFacing.VALUES)
+            pow = Math.max(pow, getWeakRedstoneInput(world, pos, side));
         return pow;
     }
 
-    public static int getWeakRedstoneInput(World world, int x, int y, int z, ForgeDirection side) {
+    public static int getWeakRedstoneInput(World world, BlockPos pos, EnumFacing side) {
 
-        return getWeakRedstoneOutput(world, x + side.offsetX, y + side.offsetY, z + side.offsetZ, side.getOpposite());
+        return getWeakRedstoneOutput(world, pos.offset(side), side.getOpposite());
     }
 
-    public static int getWeakRedstoneInput(World world, int x, int y, int z, ForgeDirection face, ForgeDirection side) {
+    public static int getWeakRedstoneInput(World world, BlockPos pos, EnumFacing face, EnumFacing side) {
 
-        return getWeakRedstoneOutput(world, x + side.offsetX, y + side.offsetY, z + side.offsetZ, face, side.getOpposite());
+        return getWeakRedstoneOutput(world, pos.offset(side), face, side.getOpposite());
     }
 
-    public static int getStrongRedstoneInput(World world, int x, int y, int z) {
+    public static int getStrongRedstoneInput(World world, BlockPos pos) {
 
         int pow = 0;
-        for (ForgeDirection side : ForgeDirection.VALID_DIRECTIONS)
-            pow = Math.max(pow, getStrongRedstoneInput(world, x, y, z, side));
+        for (EnumFacing side : EnumFacing.VALUES)
+            pow = Math.max(pow, getStrongRedstoneInput(world, pos, side));
         return pow;
     }
 
-    public static int getStrongRedstoneInput(World world, int x, int y, int z, ForgeDirection side) {
+    public static int getStrongRedstoneInput(World world, BlockPos pos, EnumFacing side) {
 
-        return getStrongRedstoneOutput(world, x + side.offsetX, y + side.offsetY, z + side.offsetZ, side.getOpposite());
+        return getStrongRedstoneOutput(world, pos.offset(side), side.getOpposite());
     }
 
-    public static int getStrongRedstoneInput(World world, int x, int y, int z, ForgeDirection face, ForgeDirection side) {
+    public static int getStrongRedstoneInput(World world, BlockPos pos, EnumFacing face, EnumFacing side) {
 
-        return getStrongRedstoneOutput(world, x + side.offsetX, y + side.offsetY, z + side.offsetZ, face, side.getOpposite());
+        return getStrongRedstoneOutput(world, pos.offset(side), face, side.getOpposite());
     }
 
 }

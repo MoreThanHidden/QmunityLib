@@ -1,14 +1,15 @@
 package uk.co.qmunity.lib.compat.fmp;
-
+/*
+Not Updated to 1.11
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import net.minecraft.client.particle.EffectRenderer;
+import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.IIcon;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import uk.co.qmunity.lib.client.render.RenderContext;
@@ -17,7 +18,7 @@ import uk.co.qmunity.lib.network.MCByteBuf;
 import uk.co.qmunity.lib.part.IPartHolder;
 import uk.co.qmunity.lib.part.IQLPart;
 import uk.co.qmunity.lib.part.ISlottedPart;
-import uk.co.qmunity.lib.raytrace.QMovingObjectPosition;
+import uk.co.qmunity.lib.raytrace.QRayTraceResult;
 import uk.co.qmunity.lib.vec.Cuboid;
 import uk.co.qmunity.lib.vec.Vector3;
 import codechicken.lib.raytracer.ExtendedMOP;
@@ -125,13 +126,13 @@ public class FMPWrappedPart implements IQLPart {
     }
 
     @Override
-    public boolean renderBreaking(RenderContext context, IVertexConsumer consumer, QMovingObjectPosition hit, IIcon overrideIcon) {
+    public boolean renderBreaking(RenderContext context, IVertexConsumer consumer, QRayTraceResult hit, TextureAtlasSprite overrideIcon) {
 
         return false;
     }
 
     @Override
-    public boolean drawHighlight(QMovingObjectPosition hit, EntityPlayer player, float partialTicks) {
+    public boolean drawHighlight(QRayTraceResult hit, EntityPlayer player, float partialTicks) {
 
         return false;
     }
@@ -143,12 +144,12 @@ public class FMPWrappedPart implements IQLPart {
     }
 
     @Override
-    public void addDestroyEffects(QMovingObjectPosition hit, EffectRenderer effectRenderer) {
+    public void addDestroyEffects(QRayTraceResult hit, ParticleManager effectRenderer) {
 
     }
 
     @Override
-    public void addHitEffects(QMovingObjectPosition hit, EffectRenderer effectRenderer) {
+    public void addHitEffects(QRayTraceResult hit, ParticleManager effectRenderer) {
 
     }
 
@@ -180,12 +181,12 @@ public class FMPWrappedPart implements IQLPart {
     }
 
     @Override
-    public QMovingObjectPosition rayTrace(Vec3 start, Vec3 end) {
+    public QRayTraceResult rayTrace(Vec3 start, Vec3 end) {
 
         ExtendedMOP emop = part.collisionRayTrace(start, end);
         if (emop == null)
             return null;
-        return new QMovingObjectPosition(emop, this);
+        return new QRayTraceResult(emop, this);
     }
 
     @Override
@@ -195,7 +196,7 @@ public class FMPWrappedPart implements IQLPart {
     }
 
     @Override
-    public ItemStack getPickBlock(EntityPlayer player, QMovingObjectPosition hit) {
+    public ItemStack getPickBlock(EntityPlayer player, QRayTraceResult hit) {
 
         return null;
     }
@@ -207,25 +208,25 @@ public class FMPWrappedPart implements IQLPart {
     }
 
     @Override
-    public void harvest(EntityPlayer player, QMovingObjectPosition hit) {
+    public void harvest(EntityPlayer player, QRayTraceResult hit) {
 
         part.harvest(hit, player);
     }
 
     @Override
-    public float getHardness(EntityPlayer player, QMovingObjectPosition hit) {
+    public float getHardness(EntityPlayer player, QRayTraceResult hit) {
 
         return -1F;
     }
 
     @Override
-    public boolean onActivated(EntityPlayer player, QMovingObjectPosition hit, ItemStack item) {
+    public boolean onActivated(EntityPlayer player, QRayTraceResult hit, ItemStack item) {
 
         return false;
     }
 
     @Override
-    public void onClicked(EntityPlayer player, QMovingObjectPosition hit, ItemStack item) {
+    public void onClicked(EntityPlayer player, QRayTraceResult hit, ItemStack item) {
 
     }
 
@@ -295,3 +296,4 @@ public class FMPWrappedPart implements IQLPart {
     }
 
 }
+*/

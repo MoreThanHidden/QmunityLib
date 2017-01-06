@@ -1,32 +1,16 @@
 package uk.co.qmunity.lib.client.render;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderBlocks;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.client.IItemRenderer;
-import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.common.MinecraftForge;
-
+import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
-import uk.co.qmunity.lib.model.LightMatrix;
-import uk.co.qmunity.lib.raytrace.QMovingObjectPosition;
-import uk.co.qmunity.lib.vec.BlockPos;
-import cpw.mods.fml.client.registry.ClientRegistry;
-import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
-import cpw.mods.fml.client.registry.RenderingRegistry;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RenderHooks {
 
@@ -37,7 +21,7 @@ public class RenderHooks {
 
     private static final List<IQLPlacementRenderer> placementRenderers = new ArrayList<IQLPlacementRenderer>();
 
-    public static int registerStaticRenderer(IQLStaticRenderer renderer) {
+/*    public static int registerStaticRenderer(IQLStaticRenderer renderer) {
 
         int id = RenderingRegistry.getNextAvailableRenderId();
         RenderingRegistry.registerBlockHandler(new WrappedStaticRenderer(id, renderer));
@@ -47,7 +31,7 @@ public class RenderHooks {
     public static void registerItemRenderer(Item item, IQLItemRenderer renderer) {
 
         MinecraftForgeClient.registerItemRenderer(item, new WrappedItemRenderer(renderer));
-    }
+    }*/
 
     public static void registerTileEntityRenderer(Class<? extends TileEntity> tile, TileEntitySpecialRenderer tesr) {
 
@@ -67,7 +51,7 @@ public class RenderHooks {
     @SubscribeEvent
     public void onDrawHighlight(DrawBlockHighlightEvent event) {
 
-        if (event.target == null || event.target.typeOfHit != MovingObjectPosition.MovingObjectType.BLOCK)
+        if (event.getTarget() == null || event.getTarget().typeOfHit != RayTraceResult.Type.BLOCK)
             return;
 
         // if (highlightShader != -1) {
@@ -141,7 +125,7 @@ public class RenderHooks {
         GL11.glDisable(GL11.GL_BLEND);
     }
 
-    private static class WrappedStaticRenderer implements ISimpleBlockRenderingHandler {
+   /* private static class WrappedStaticRenderer implements ISimpleBlockRenderingHandler {
 
         private final int id;
         private final IQLStaticRenderer renderer;
@@ -163,13 +147,13 @@ public class RenderHooks {
             RenderContext context = VertexConsumerTessellator.instance.context.set(true, true, true, true);
 
             if (rb.overrideBlockTexture != null) {
-                MovingObjectPosition mop = Minecraft.getMinecraft().objectMouseOver;
-                if (mop != null && mop instanceof QMovingObjectPosition && ((QMovingObjectPosition) mop).part != null) {
-                    Tessellator.instance.addTranslation(x, y, z);
+                RayTraceResult mop = Minecraft.getMinecraft().objectMouseOver;
+                if (mop != null && mop instanceof QRayTraceResult && ((QRayTraceResult) mop).part != null) {
+                    Tessellator.getInstance().getBuffer().setTranslation(x, y, z);
                     LightMatrix.instance.locate(world, x, y, z);
                     boolean rendered = renderer.renderBreaking(world, new BlockPos(x, y, z), context, VertexConsumerTessellator.instance,
                             rb.overrideBlockTexture);
-                    Tessellator.instance.addTranslation(-x, -y, -z);
+                    Tessellator.getInstance().addTranslation(-x, -y, -z);
                     return rendered;
                 }
                 return false;
@@ -230,14 +214,14 @@ public class RenderHooks {
                 GL11.glTranslated(0, -0.125, 0);
             }
 
-            Tessellator.instance.startDrawingQuads();
+            Tessellator.getInstance().getBuffer().begin(GL11.g););
             renderer.renderItem(item, type, VertexConsumerTessellator.instance.context.set(true, false, true, true),
                     VertexConsumerTessellator.instance);
-            Tessellator.instance.draw();
+            Tessellator.getInstance().draw();
 
             GL11.glPopMatrix();
         }
 
-    }
+    }*/
 
 }

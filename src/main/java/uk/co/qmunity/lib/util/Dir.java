@@ -1,47 +1,66 @@
 package uk.co.qmunity.lib.util;
 
 import net.minecraft.client.resources.I18n;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import uk.co.qmunity.lib.transform.Rotation;
-import uk.co.qmunity.lib.vec.BlockPos;
 import uk.co.qmunity.lib.vec.Vector3;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public enum Dir {
 
-    FRONT(ForgeDirection.NORTH), RIGHT(ForgeDirection.EAST), BACK(ForgeDirection.SOUTH), LEFT(ForgeDirection.WEST), TOP(ForgeDirection.UP), BOTTOM(
-            ForgeDirection.DOWN);
+    FRONT(EnumFacing.NORTH), RIGHT(EnumFacing.EAST), BACK(EnumFacing.SOUTH), LEFT(EnumFacing.WEST), TOP(EnumFacing.UP), BOTTOM(
+            EnumFacing.DOWN);
 
-    private ForgeDirection d;
+    private EnumFacing d;
 
-    private Dir(ForgeDirection d) {
+    private Dir(EnumFacing d) {
 
         this.d = d;
     }
 
-    public ForgeDirection toForgeDirection(ForgeDirection face, int rotation) {
+    public EnumFacing toEnumFacing(EnumFacing face, int rotation) {
 
-        return new Vector3(BlockPos.sideOffsets[d.ordinal()]).//
+        return toSide(new Vector3(new BlockPos(0,0,0).offset(d)).//
                 apply(Rotation.quarterRotations[rotation % 4]).//
                 apply(Rotation.sideRotations[face.ordinal()]).//
-                toBlockPos().toSide();
+                toBlockPos());
     }
 
-    public ForgeDirection getFD() {
+    public static EnumFacing toSide(BlockPos pos) {
+
+        if (pos.getY() < 0)
+            return EnumFacing.DOWN;
+        if (pos.getY() > 0)
+            return EnumFacing.UP;
+        if (pos.getZ() < 0)
+            return EnumFacing.NORTH;
+        if (pos.getZ() > 0)
+            return EnumFacing.SOUTH;
+        if (pos.getX() < 0)
+            return EnumFacing.WEST;
+        if (pos.getX()> 0)
+            return EnumFacing.EAST;
+
+        return null;
+    }
+
+
+    public EnumFacing getFD() {
 
         return d;
     }
 
-    public static Dir getDirection(ForgeDirection direction, ForgeDirection face, int rotation) {
+    public static Dir getDirection(EnumFacing direction, EnumFacing face, int rotation) {
 
-        return fromFD(new Vector3(BlockPos.sideOffsets[direction.ordinal()]).//
+        return fromFD(toSide(new Vector3(new BlockPos(0,0,0).offset(direction)).//
                 apply(Rotation.sideRotations[face.ordinal()].inverse()).//
                 apply(Rotation.quarterRotations[rotation % 4].inverse()).//
-                toBlockPos().toSide());
+                toBlockPos()));
     }
 
-    private static Dir fromFD(ForgeDirection forgeDirection) {
+    private static Dir fromFD(EnumFacing forgeDirection) {
 
         for (Dir d : values())
             if (d.d == forgeDirection)

@@ -1,14 +1,14 @@
 package uk.co.qmunity.lib.part;
 
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraft.util.EnumFacing;
 
 public interface IRedstonePart extends IQLPart {
 
     // Redstone
-    public boolean canConnectRedstone(ForgeDirection side);
+    public boolean canConnectRedstone(EnumFacing side);
 
-    public int getWeakPower(ForgeDirection side);
+    public int getWeakPower(EnumFacing side);
 
-    public int getStrongPower(ForgeDirection side);
+    public int getStrongPower(EnumFacing side);
 
 }

@@ -1,11 +1,7 @@
 package uk.co.qmunity.lib.compat.nei;
 
-import uk.co.qmunity.lib.compat.QLDependencies;
-import uk.co.qmunity.lib.util.IModule;
-import codechicken.nei.api.API;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+/*
+Not updated to 1.11
 
 public class CompatModuleNEI implements IModule {
 
@@ -32,3 +28,4 @@ public class CompatModuleNEI implements IModule {
     }
 
 }
+*/

@@ -2,13 +2,13 @@ package uk.co.qmunity.lib.network;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.relauncher.Side;
 import uk.co.qmunity.lib.QLModInfo;
 import uk.co.qmunity.lib.network.packet.PacketCPart;
 import uk.co.qmunity.lib.network.packet.PacketCUpdateTile;
-import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import cpw.mods.fml.relauncher.Side;
 
 public class NetworkHandler {
 

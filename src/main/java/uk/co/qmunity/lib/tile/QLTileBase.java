@@ -2,22 +2,18 @@ package uk.co.qmunity.lib.tile;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
-import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 import uk.co.qmunity.lib.network.MCByteBuf;
 import uk.co.qmunity.lib.network.NetworkHandler;
 import uk.co.qmunity.lib.network.annotation.DescSynced;
@@ -28,6 +24,10 @@ import uk.co.qmunity.lib.util.INBTSaveable;
 import uk.co.qmunity.lib.util.ISyncable;
 import uk.co.qmunity.lib.vec.IWorldLocation;
 
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+
 @SuppressWarnings("rawtypes")
 public class QLTileBase extends TileEntity implements IWorldLocation, ISyncable, INBTSaveable {
 
@@ -36,27 +36,15 @@ public class QLTileBase extends TileEntity implements IWorldLocation, ISyncable,
      */
 
     @Override
-    public int getX() {
+    public BlockPos getPos() {
 
-        return xCoord;
-    }
-
-    @Override
-    public int getY() {
-
-        return yCoord;
-    }
-
-    @Override
-    public int getZ() {
-
-        return zCoord;
+        return pos;
     }
 
     @Override
     public World getWorld() {
 
-        return getWorldObj();
+        return world;
     }
 
     /*
@@ -84,22 +72,21 @@ public class QLTileBase extends TileEntity implements IWorldLocation, ISyncable,
      * Synchronization bridge for description packets (so the client can get a description of the TE when it loads without requesting a packet).
      */
 
+    @Nullable
     @Override
-    public Packet getDescriptionPacket() {
-
+    public SPacketUpdateTileEntity getUpdatePacket() {
         NBTTagCompound tag = new NBTTagCompound();
 
         ByteBuf buf = Unpooled.buffer();
         writeUpdateData(new MCByteBuf(buf));
         tag.setByteArray("data", buf.array());
 
-        return new S35PacketUpdateTileEntity(getX(), getY(), getZ(), 2, tag);
+        return new SPacketUpdateTileEntity(getPos(), 2, tag);
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
-
-        ByteBuf buf = Unpooled.copiedBuffer(pkt.func_148857_g().getByteArray("data"));
+    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
+        ByteBuf buf = Unpooled.copiedBuffer(pkt.getNbtCompound().getByteArray("data"));
         readUpdateData(new MCByteBuf(buf));
         markRender();
     }
@@ -129,31 +116,31 @@ public class QLTileBase extends TileEntity implements IWorldLocation, ISyncable,
 
         if (getWorld() == null || getWorld().isRemote)
             return;
-        getWorld().notifyBlockChange(getX(), getY(), getZ(), getBlockType());
+        getWorld().notifyNeighborsOfStateChange(getPos(), getBlockType(), false);
     }
 
     public void notifyTileChange() {
 
         if (getWorld() == null || getWorld().isRemote)
             return;
-        getWorld().func_147453_f(getX(), getY(), getZ(), getBlockType());
+        getWorld().notifyNeighborsOfStateChange(getPos(), getBlockType(), false);
     }
 
     public void recalculateLighting() {
 
         if (getWorld() == null)
             return;
-        getWorld().func_147451_t(getX(), getY(), getZ());
+        getWorld().notifyLightSet(getPos());
     }
 
     public void markRender() {
 
         if (getWorld() == null || !getWorld().isRemote)
             return;
-        getWorld().func_147479_m(getX(), getY(), getZ());
+        getWorld().markBlockRangeForRenderUpdate(getPos(), getPos());
     }
 
-    public boolean onActivated(EntityPlayer player, MovingObjectPosition mop, ItemStack stack) {
+    public boolean onActivated(EntityPlayer player, RayTraceResult mop, ItemStack stack) {
 
         return false;
     }
@@ -185,34 +172,27 @@ public class QLTileBase extends TileEntity implements IWorldLocation, ISyncable,
         return l;
     }
 
-    public boolean canConnectRedstone(ForgeDirection side) {
+    public boolean canConnectRedstone(EnumFacing side) {
 
         return false;
     }
 
-    public int getStrongRedstoneOutput(ForgeDirection side) {
+    public int getStrongRedstoneOutput(EnumFacing side) {
 
         return 0;
     }
 
-    public int getWeakRedstoneOutput(ForgeDirection side) {
+    public int getWeakRedstoneOutput(EnumFacing side) {
 
         return 0;
     }
 
     protected int ticker = 0;
 
-    @Override
-    public final void updateEntity() {
-
+    public void update() {
         if (ticker == 0)
             onFirstTick();
-        update();
         ticker++;
-    }
-
-    public void update() {
-
     }
 
 }

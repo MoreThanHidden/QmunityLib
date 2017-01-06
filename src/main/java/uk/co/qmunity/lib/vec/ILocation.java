@@ -1,11 +1,9 @@
 package uk.co.qmunity.lib.vec;
 
+import net.minecraft.util.math.BlockPos;
+
 public interface ILocation {
 
-    public int getX();
-
-    public int getY();
-
-    public int getZ();
+    public BlockPos getPos();
 
 }

@@ -1,12 +1,7 @@
 package uk.co.qmunity.lib.compat.fmp;
 
-import net.minecraft.world.World;
-import uk.co.qmunity.lib.part.IMultipartSystem;
-import uk.co.qmunity.lib.part.IQLPart;
-import codechicken.lib.vec.BlockCoord;
-import codechicken.multipart.TMultiPart;
-import codechicken.multipart.TileMultipart;
-
+/*
+Not Updated to 1.11
 public class MultipartSystemFMP implements IMultipartSystem {
 
     @Override
@@ -72,3 +67,4 @@ public class MultipartSystemFMP implements IMultipartSystem {
     }
 
 }
+*/

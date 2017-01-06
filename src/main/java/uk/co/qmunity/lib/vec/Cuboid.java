@@ -1,15 +1,16 @@
 package uk.co.qmunity.lib.vec;
 
+import net.minecraft.block.Block;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
+import uk.co.qmunity.lib.Copyable;
+import uk.co.qmunity.lib.block.BlockMultipart;
+import uk.co.qmunity.lib.transform.Rotation;
+import uk.co.qmunity.lib.transform.Transformation;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
-
-import net.minecraft.block.Block;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraftforge.common.util.ForgeDirection;
-import uk.co.qmunity.lib.Copyable;
-import uk.co.qmunity.lib.transform.Rotation;
-import uk.co.qmunity.lib.transform.Transformation;
 
 /**
  * Most of this class was made by ChickenBones for CodeChickenLib but has been adapted for use in QmunityLib.<br>
@@ -185,7 +186,7 @@ public class Cuboid implements Copyable<Cuboid> {
         return this;
     }
 
-    public double getSide(ForgeDirection side) {
+    public double getSide(EnumFacing side) {
 
         switch (side) {
         case DOWN:
@@ -206,7 +207,7 @@ public class Cuboid implements Copyable<Cuboid> {
         throw new IndexOutOfBoundsException("Switch Falloff");
     }
 
-    public Cuboid setSide(ForgeDirection side, double value) {
+    public Cuboid setSide(EnumFacing side, double value) {
 
         switch (side) {
         case DOWN:
@@ -233,12 +234,12 @@ public class Cuboid implements Copyable<Cuboid> {
         return this;
     }
 
-    public Cuboid onFace(ForgeDirection face) {
+    public Cuboid onFace(EnumFacing face) {
 
         return onFace(face, Vector3.center);
     }
 
-    public Cuboid onFace(ForgeDirection face, Vector3 center) {
+    public Cuboid onFace(EnumFacing face, Vector3 center) {
 
         return copy().apply(Rotation.sideRotations[face.ordinal()].at(center.copy().inverse()));
     }
@@ -246,15 +247,15 @@ public class Cuboid implements Copyable<Cuboid> {
     public Cuboid[] computeFaces() {
 
         return new Cuboid[] {//
-        onFace(ForgeDirection.DOWN), onFace(ForgeDirection.UP), onFace(ForgeDirection.NORTH), onFace(ForgeDirection.SOUTH),
-                onFace(ForgeDirection.WEST), onFace(ForgeDirection.EAST) };
+        onFace(EnumFacing.DOWN), onFace(EnumFacing.UP), onFace(EnumFacing.NORTH), onFace(EnumFacing.SOUTH),
+                onFace(EnumFacing.WEST), onFace(EnumFacing.EAST) };
     }
 
     public Cuboid[] computeFaces(Vector3 center) {
 
         return new Cuboid[] {//
-        onFace(ForgeDirection.DOWN, center), onFace(ForgeDirection.UP, center), onFace(ForgeDirection.NORTH, center),
-                onFace(ForgeDirection.SOUTH, center), onFace(ForgeDirection.WEST, center), onFace(ForgeDirection.EAST, center) };
+        onFace(EnumFacing.DOWN, center), onFace(EnumFacing.UP, center), onFace(EnumFacing.NORTH, center),
+                onFace(EnumFacing.SOUTH, center), onFace(EnumFacing.WEST, center), onFace(EnumFacing.EAST, center) };
     }
 
     public Cuboid quarterRotation(int rot) {
@@ -306,11 +307,14 @@ public class Cuboid implements Copyable<Cuboid> {
 
     public AxisAlignedBB toAABB() {
 
-        return AxisAlignedBB.getBoundingBox(min.x, min.y, min.z, max.x, max.y, max.z);
+        return new AxisAlignedBB(min.x, min.y, min.z, max.x, max.y, max.z);
     }
 
     public void setBlockBounds(Block block) {
+        if (block instanceof BlockMultipart){
+            ((BlockMultipart)block).setBlockBounds(new AxisAlignedBB ((float) min.x, (float) min.y, (float) min.z, (float) max.x, (float) max.y, (float) max.z));
+        }
 
-        block.setBlockBounds((float) min.x, (float) min.y, (float) min.z, (float) max.x, (float) max.y, (float) max.z);
     }
+
 }

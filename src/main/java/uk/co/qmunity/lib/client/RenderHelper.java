@@ -2,6 +2,8 @@ package uk.co.qmunity.lib.client;
 
 import net.minecraft.client.renderer.Tessellator;
 
+import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import org.lwjgl.opengl.GL11;
 
 import uk.co.qmunity.lib.vec.Cuboid;
@@ -133,59 +135,60 @@ public class RenderHelper {
 
     public static void drawTesselatedColoredCube(Cuboid vector, int r, int g, int b, int a) {
 
-        Tessellator t = Tessellator.instance;
+        Tessellator t = Tessellator.getInstance();
+        VertexBuffer buffer = t.getBuffer();
         boolean wasTesselating = false;
 
         // Check if we were already tesselating
         try {
-            t.startDrawingQuads();
+            buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
         } catch (IllegalStateException e) {
             wasTesselating = true;
 
         }
 
-        t.setColorRGBA(r, g, b, a);
-
-        t.setNormal(0, 1, 0);
-        t.addVertex(vector.min.x, vector.max.y, vector.max.z);
-        t.addVertex(vector.max.x, vector.max.y, vector.max.z);
-        t.addVertex(vector.max.x, vector.max.y, vector.min.z);
-        t.addVertex(vector.min.x, vector.max.y, vector.min.z);
+        buffer.color(r, g, b, a);
+        
+        buffer.normal(0, 1, 0);
+        buffer.pos(vector.min.x, vector.max.y, vector.max.z);
+        buffer.pos(vector.max.x, vector.max.y, vector.max.z);
+        buffer.pos(vector.max.x, vector.max.y, vector.min.z);
+        buffer.pos(vector.min.x, vector.max.y, vector.min.z);
 
         // Bottom side
-        t.setNormal(0, -1, 0);
-        t.addVertex(vector.max.x, vector.min.y, vector.max.z);
-        t.addVertex(vector.min.x, vector.min.y, vector.max.z);
-        t.addVertex(vector.min.x, vector.min.y, vector.min.z);
-        t.addVertex(vector.max.x, vector.min.y, vector.min.z);
+        buffer.normal(0, -1, 0);
+        buffer.pos(vector.max.x, vector.min.y, vector.max.z);
+        buffer.pos(vector.min.x, vector.min.y, vector.max.z);
+        buffer.pos(vector.min.x, vector.min.y, vector.min.z);
+        buffer.pos(vector.max.x, vector.min.y, vector.min.z);
 
         // Draw west side:
-        t.setNormal(-1, 0, 0);
-        t.addVertex(vector.min.x, vector.min.y, vector.max.z);
-        t.addVertex(vector.min.x, vector.max.y, vector.max.z);
-        t.addVertex(vector.min.x, vector.max.y, vector.min.z);
-        t.addVertex(vector.min.x, vector.min.y, vector.min.z);
+        buffer.normal(-1, 0, 0);
+        buffer.pos(vector.min.x, vector.min.y, vector.max.z);
+        buffer.pos(vector.min.x, vector.max.y, vector.max.z);
+        buffer.pos(vector.min.x, vector.max.y, vector.min.z);
+        buffer.pos(vector.min.x, vector.min.y, vector.min.z);
 
         // Draw east side:
-        t.setNormal(1, 0, 0);
-        t.addVertex(vector.max.x, vector.min.y, vector.min.z);
-        t.addVertex(vector.max.x, vector.max.y, vector.min.z);
-        t.addVertex(vector.max.x, vector.max.y, vector.max.z);
-        t.addVertex(vector.max.x, vector.min.y, vector.max.z);
+        buffer.normal(1, 0, 0);
+        buffer.pos(vector.max.x, vector.min.y, vector.min.z);
+        buffer.pos(vector.max.x, vector.max.y, vector.min.z);
+        buffer.pos(vector.max.x, vector.max.y, vector.max.z);
+        buffer.pos(vector.max.x, vector.min.y, vector.max.z);
 
         // Draw north side
-        t.setNormal(0, 0, -1);
-        t.addVertex(vector.min.x, vector.min.y, vector.min.z);
-        t.addVertex(vector.min.x, vector.max.y, vector.min.z);
-        t.addVertex(vector.max.x, vector.max.y, vector.min.z);
-        t.addVertex(vector.max.x, vector.min.y, vector.min.z);
+        buffer.normal(0, 0, -1);
+        buffer.pos(vector.min.x, vector.min.y, vector.min.z);
+        buffer.pos(vector.min.x, vector.max.y, vector.min.z);
+        buffer.pos(vector.max.x, vector.max.y, vector.min.z);
+        buffer.pos(vector.max.x, vector.min.y, vector.min.z);
 
         // Draw south side
-        t.setNormal(0, 0, 1);
-        t.addVertex(vector.min.x, vector.min.y, vector.max.z);
-        t.addVertex(vector.max.x, vector.min.y, vector.max.z);
-        t.addVertex(vector.max.x, vector.max.y, vector.max.z);
-        t.addVertex(vector.min.x, vector.max.y, vector.max.z);
+        buffer.normal(0, 0, 1);
+        buffer.pos(vector.min.x, vector.min.y, vector.max.z);
+        buffer.pos(vector.max.x, vector.min.y, vector.max.z);
+        buffer.pos(vector.max.x, vector.max.y, vector.max.z);
+        buffer.pos(vector.min.x, vector.max.y, vector.max.z);
 
         GL11.glColor4d(1, 1, 1, 1);
 
@@ -196,63 +199,64 @@ public class RenderHelper {
 
     public static void drawTesselatedColoredCube(Cuboid vector) {
 
-        Tessellator t = Tessellator.instance;
+        Tessellator t = Tessellator.getInstance();
+        VertexBuffer buffer = t.getBuffer();
         boolean wasTesselating = false;
 
         // Check if we were already tesselating
         try {
-            t.startDrawingQuads();
+            buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
         } catch (IllegalStateException e) {
             wasTesselating = true;
         }
 
         // Top side
-        t.setColorRGBA_F(1.0F, 0.0F, 0.0F, 1.0F);
-        t.setNormal(0, 1, 0);
-        t.addVertex(vector.min.x, vector.max.y, vector.max.z);
-        t.addVertex(vector.max.x, vector.max.y, vector.max.z);
-        t.addVertex(vector.max.x, vector.max.y, vector.min.z);
-        t.addVertex(vector.min.x, vector.max.y, vector.min.z);
+        buffer.color(1.0F, 0.0F, 0.0F, 1.0F);
+        buffer.normal(0, 1, 0);
+        buffer.pos(vector.min.x, vector.max.y, vector.max.z);
+        buffer.pos(vector.max.x, vector.max.y, vector.max.z);
+        buffer.pos(vector.max.x, vector.max.y, vector.min.z);
+        buffer.pos(vector.min.x, vector.max.y, vector.min.z);
 
         // Bottom side
-        t.setColorRGBA_F(1.0F, 1.0F, 0.0F, 1.0F);
-        t.setNormal(0, -1, 0);
-        t.addVertex(vector.max.x, vector.min.y, vector.max.z);
-        t.addVertex(vector.min.x, vector.min.y, vector.max.z);
-        t.addVertex(vector.min.x, vector.min.y, vector.min.z);
-        t.addVertex(vector.max.x, vector.min.y, vector.min.z);
+        buffer.color(1.0F, 1.0F, 0.0F, 1.0F);
+        buffer.normal(0, -1, 0);
+        buffer.pos(vector.max.x, vector.min.y, vector.max.z);
+        buffer.pos(vector.min.x, vector.min.y, vector.max.z);
+        buffer.pos(vector.min.x, vector.min.y, vector.min.z);
+        buffer.pos(vector.max.x, vector.min.y, vector.min.z);
 
         // Draw west side:
-        t.setColorRGBA_F(0.0F, 1.0F, 0.0F, 1.0F);
-        t.setNormal(-1, 0, 0);
-        t.addVertex(vector.min.x, vector.min.y, vector.max.z);
-        t.addVertex(vector.min.x, vector.max.y, vector.max.z);
-        t.addVertex(vector.min.x, vector.max.y, vector.min.z);
-        t.addVertex(vector.min.x, vector.min.y, vector.min.z);
+        buffer.color(0.0F, 1.0F, 0.0F, 1.0F);
+        buffer.normal(-1, 0, 0);
+        buffer.pos(vector.min.x, vector.min.y, vector.max.z);
+        buffer.pos(vector.min.x, vector.max.y, vector.max.z);
+        buffer.pos(vector.min.x, vector.max.y, vector.min.z);
+        buffer.pos(vector.min.x, vector.min.y, vector.min.z);
 
         // Draw east side:
-        t.setColorRGBA_F(0.0F, 1.0F, 1.0F, 1.0F);
-        t.setNormal(1, 0, 0);
-        t.addVertex(vector.max.x, vector.min.y, vector.min.z);
-        t.addVertex(vector.max.x, vector.max.y, vector.min.z);
-        t.addVertex(vector.max.x, vector.max.y, vector.max.z);
-        t.addVertex(vector.max.x, vector.min.y, vector.max.z);
+        buffer.color(0.0F, 1.0F, 1.0F, 1.0F);
+        buffer.normal(1, 0, 0);
+        buffer.pos(vector.max.x, vector.min.y, vector.min.z);
+        buffer.pos(vector.max.x, vector.max.y, vector.min.z);
+        buffer.pos(vector.max.x, vector.max.y, vector.max.z);
+        buffer.pos(vector.max.x, vector.min.y, vector.max.z);
 
         // Draw north side
-        t.setColorRGBA_F(0.0F, 0.0F, 1.0F, 1.0F);
-        t.setNormal(0, 0, -1);
-        t.addVertex(vector.min.x, vector.min.y, vector.min.z);
-        t.addVertex(vector.min.x, vector.max.y, vector.min.z);
-        t.addVertex(vector.max.x, vector.max.y, vector.min.z);
-        t.addVertex(vector.max.x, vector.min.y, vector.min.z);
+        buffer.color(0.0F, 0.0F, 1.0F, 1.0F);
+        buffer.normal(0, 0, -1);
+        buffer.pos(vector.min.x, vector.min.y, vector.min.z);
+        buffer.pos(vector.min.x, vector.max.y, vector.min.z);
+        buffer.pos(vector.max.x, vector.max.y, vector.min.z);
+        buffer.pos(vector.max.x, vector.min.y, vector.min.z);
 
         // Draw south side
-        t.setColorRGBA_F(0.0F, 0.0F, 0.0F, 1.0F);
-        t.setNormal(0, 0, 1);
-        t.addVertex(vector.min.x, vector.min.y, vector.max.z);
-        t.addVertex(vector.max.x, vector.min.y, vector.max.z);
-        t.addVertex(vector.max.x, vector.max.y, vector.max.z);
-        t.addVertex(vector.min.x, vector.max.y, vector.max.z);
+        buffer.color(0.0F, 0.0F, 0.0F, 1.0F);
+        buffer.normal(0, 0, 1);
+        buffer.pos(vector.min.x, vector.min.y, vector.max.z);
+        buffer.pos(vector.max.x, vector.min.y, vector.max.z);
+        buffer.pos(vector.max.x, vector.max.y, vector.max.z);
+        buffer.pos(vector.min.x, vector.max.y, vector.max.z);
 
         if (!wasTesselating) {
             t.draw();
@@ -261,12 +265,13 @@ public class RenderHelper {
 
     public static void drawTesselatedTexturedCube(Cuboid vector) {
 
-        Tessellator t = Tessellator.instance;
+        Tessellator t = Tessellator.getInstance();
+        VertexBuffer buffer = t.getBuffer();
         boolean wasTesselating = false;
 
         // Check if we were already tesselating
         try {
-            t.startDrawingQuads();
+            buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
         } catch (IllegalStateException e) {
             wasTesselating = true;
         }
@@ -277,46 +282,46 @@ public class RenderHelper {
         double maxV = 1;
 
         // Top side
-        t.setNormal(0, 1, 0);
-        t.addVertexWithUV(vector.min.x, vector.max.y, vector.max.z, minU, maxV);
-        t.addVertexWithUV(vector.max.x, vector.max.y, vector.max.z, minU, minV);
-        t.addVertexWithUV(vector.max.x, vector.max.y, vector.min.z, maxU, minV);
-        t.addVertexWithUV(vector.min.x, vector.max.y, vector.min.z, maxU, maxV);
+        buffer.normal(0, 1, 0);
+        buffer.pos(vector.min.x, vector.max.y, vector.max.z).tex(minU, maxV);
+        buffer.pos(vector.max.x, vector.max.y, vector.max.z).tex(minU, minV);
+        buffer.pos(vector.max.x, vector.max.y, vector.min.z).tex(maxU, minV);
+        buffer.pos(vector.min.x, vector.max.y, vector.min.z).tex(maxU, maxV);
 
         // Bottom side
-        t.setNormal(0, -1, 0);
-        t.addVertexWithUV(vector.max.x, vector.min.y, vector.max.z, minU, maxV);
-        t.addVertexWithUV(vector.min.x, vector.min.y, vector.max.z, minU, minV);
-        t.addVertexWithUV(vector.min.x, vector.min.y, vector.min.z, maxU, minV);
-        t.addVertexWithUV(vector.max.x, vector.min.y, vector.min.z, maxU, maxV);
+        buffer.normal(0, -1, 0);
+        buffer.pos(vector.max.x, vector.min.y, vector.max.z).tex(minU, maxV);
+        buffer.pos(vector.min.x, vector.min.y, vector.max.z).tex(minU, minV);
+        buffer.pos(vector.min.x, vector.min.y, vector.min.z).tex(maxU, minV);
+        buffer.pos(vector.max.x, vector.min.y, vector.min.z).tex(maxU, maxV);
 
         // Draw west side:
-        t.setNormal(-1, 0, 0);
-        t.addVertexWithUV(vector.min.x, vector.min.y, vector.max.z, minU, maxV);
-        t.addVertexWithUV(vector.min.x, vector.max.y, vector.max.z, minU, minV);
-        t.addVertexWithUV(vector.min.x, vector.max.y, vector.min.z, maxU, minV);
-        t.addVertexWithUV(vector.min.x, vector.min.y, vector.min.z, maxU, maxV);
+        buffer.normal(-1, 0, 0);
+        buffer.pos(vector.min.x, vector.min.y, vector.max.z).tex(minU, maxV);
+        buffer.pos(vector.min.x, vector.max.y, vector.max.z).tex(minU, minV);
+        buffer.pos(vector.min.x, vector.max.y, vector.min.z).tex(maxU, minV);
+        buffer.pos(vector.min.x, vector.min.y, vector.min.z).tex(maxU, maxV);
 
         // Draw east side:
-        t.setNormal(1, 0, 0);
-        t.addVertexWithUV(vector.max.x, vector.min.y, vector.min.z, minU, maxV);
-        t.addVertexWithUV(vector.max.x, vector.max.y, vector.min.z, minU, minV);
-        t.addVertexWithUV(vector.max.x, vector.max.y, vector.max.z, maxU, minV);
-        t.addVertexWithUV(vector.max.x, vector.min.y, vector.max.z, maxU, maxV);
+        buffer.normal(1, 0, 0);
+        buffer.pos(vector.max.x, vector.min.y, vector.min.z).tex(minU, maxV);
+        buffer.pos(vector.max.x, vector.max.y, vector.min.z).tex(minU, minV);
+        buffer.pos(vector.max.x, vector.max.y, vector.max.z).tex(maxU, minV);
+        buffer.pos(vector.max.x, vector.min.y, vector.max.z).tex(maxU, maxV);
 
         // Draw north side
-        t.setNormal(0, 0, -1);
-        t.addVertexWithUV(vector.min.x, vector.min.y, vector.min.z, minU, maxV);
-        t.addVertexWithUV(vector.min.x, vector.max.y, vector.min.z, minU, minV);
-        t.addVertexWithUV(vector.max.x, vector.max.y, vector.min.z, maxU, minV);
-        t.addVertexWithUV(vector.max.x, vector.min.y, vector.min.z, maxU, maxV);
+        buffer.normal(0, 0, -1);
+        buffer.pos(vector.min.x, vector.min.y, vector.min.z).tex(minU, maxV);
+        buffer.pos(vector.min.x, vector.max.y, vector.min.z).tex(minU, minV);
+        buffer.pos(vector.max.x, vector.max.y, vector.min.z).tex(maxU, minV);
+        buffer.pos(vector.max.x, vector.min.y, vector.min.z).tex(maxU, maxV);
 
         // Draw south side
-        t.setNormal(0, 0, 1);
-        t.addVertexWithUV(vector.min.x, vector.min.y, vector.max.z, minU, maxV);
-        t.addVertexWithUV(vector.max.x, vector.min.y, vector.max.z, minU, minV);
-        t.addVertexWithUV(vector.max.x, vector.max.y, vector.max.z, maxU, minV);
-        t.addVertexWithUV(vector.min.x, vector.max.y, vector.max.z, maxU, maxV);
+        buffer.normal(0, 0, 1);
+        buffer.pos(vector.min.x, vector.min.y, vector.max.z).tex(minU, maxV);
+        buffer.pos(vector.max.x, vector.min.y, vector.max.z).tex(minU, minV);
+        buffer.pos(vector.max.x, vector.max.y, vector.max.z).tex(maxU, minV);
+        buffer.pos(vector.min.x, vector.max.y, vector.max.z).tex(maxU, maxV);
 
         if (!wasTesselating) {
             t.draw();
@@ -325,57 +330,58 @@ public class RenderHelper {
 
     public static void drawTesselatedCube(Cuboid vector) {
 
-        Tessellator t = Tessellator.instance;
+        Tessellator t = Tessellator.getInstance();
+        VertexBuffer buffer = t.getBuffer();
         boolean wasTesselating = false;
 
         // Check if we were already tesselating
         try {
-            t.startDrawingQuads();
+            buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
         } catch (IllegalStateException e) {
             wasTesselating = true;
         }
 
         // Top side
-        t.setNormal(0, 1, 0);
-        t.addVertex(vector.min.x, vector.max.y, vector.max.z);
-        t.addVertex(vector.max.x, vector.max.y, vector.max.z);
-        t.addVertex(vector.max.x, vector.max.y, vector.min.z);
-        t.addVertex(vector.min.x, vector.max.y, vector.min.z);
+        buffer.normal(0, 1, 0);
+        buffer.pos(vector.min.x, vector.max.y, vector.max.z);
+        buffer.pos(vector.max.x, vector.max.y, vector.max.z);
+        buffer.pos(vector.max.x, vector.max.y, vector.min.z);
+        buffer.pos(vector.min.x, vector.max.y, vector.min.z);
 
         // Bottom side
-        t.setNormal(0, -1, 0);
-        t.addVertex(vector.max.x, vector.min.y, vector.max.z);
-        t.addVertex(vector.min.x, vector.min.y, vector.max.z);
-        t.addVertex(vector.min.x, vector.min.y, vector.min.z);
-        t.addVertex(vector.max.x, vector.min.y, vector.min.z);
+        buffer.normal(0, -1, 0);
+        buffer.pos(vector.max.x, vector.min.y, vector.max.z);
+        buffer.pos(vector.min.x, vector.min.y, vector.max.z);
+        buffer.pos(vector.min.x, vector.min.y, vector.min.z);
+        buffer.pos(vector.max.x, vector.min.y, vector.min.z);
 
         // Draw west side:
-        t.setNormal(-1, 0, 0);
-        t.addVertex(vector.min.x, vector.min.y, vector.max.z);
-        t.addVertex(vector.min.x, vector.max.y, vector.max.z);
-        t.addVertex(vector.min.x, vector.max.y, vector.min.z);
-        t.addVertex(vector.min.x, vector.min.y, vector.min.z);
+        buffer.normal(-1, 0, 0);
+        buffer.pos(vector.min.x, vector.min.y, vector.max.z);
+        buffer.pos(vector.min.x, vector.max.y, vector.max.z);
+        buffer.pos(vector.min.x, vector.max.y, vector.min.z);
+        buffer.pos(vector.min.x, vector.min.y, vector.min.z);
 
         // Draw east side:
-        t.setNormal(1, 0, 0);
-        t.addVertex(vector.max.x, vector.min.y, vector.min.z);
-        t.addVertex(vector.max.x, vector.max.y, vector.min.z);
-        t.addVertex(vector.max.x, vector.max.y, vector.max.z);
-        t.addVertex(vector.max.x, vector.min.y, vector.max.z);
+        buffer.normal(1, 0, 0);
+        buffer.pos(vector.max.x, vector.min.y, vector.min.z);
+        buffer.pos(vector.max.x, vector.max.y, vector.min.z);
+        buffer.pos(vector.max.x, vector.max.y, vector.max.z);
+        buffer.pos(vector.max.x, vector.min.y, vector.max.z);
 
         // Draw north side
-        t.setNormal(0, 0, -1);
-        t.addVertex(vector.min.x, vector.min.y, vector.min.z);
-        t.addVertex(vector.min.x, vector.max.y, vector.min.z);
-        t.addVertex(vector.max.x, vector.max.y, vector.min.z);
-        t.addVertex(vector.max.x, vector.min.y, vector.min.z);
+        buffer.normal(0, 0, -1);
+        buffer.pos(vector.min.x, vector.min.y, vector.min.z);
+        buffer.pos(vector.min.x, vector.max.y, vector.min.z);
+        buffer.pos(vector.max.x, vector.max.y, vector.min.z);
+        buffer.pos(vector.max.x, vector.min.y, vector.min.z);
 
         // Draw south side
-        t.setNormal(0, 0, 1);
-        t.addVertex(vector.min.x, vector.min.y, vector.max.z);
-        t.addVertex(vector.max.x, vector.min.y, vector.max.z);
-        t.addVertex(vector.max.x, vector.max.y, vector.max.z);
-        t.addVertex(vector.min.x, vector.max.y, vector.max.z);
+        buffer.normal(0, 0, 1);
+        buffer.pos(vector.min.x, vector.min.y, vector.max.z);
+        buffer.pos(vector.max.x, vector.min.y, vector.max.z);
+        buffer.pos(vector.max.x, vector.max.y, vector.max.z);
+        buffer.pos(vector.min.x, vector.max.y, vector.max.z);
 
         if (!wasTesselating) {
             t.draw();
@@ -384,51 +390,52 @@ public class RenderHelper {
 
     public static void drawTesselatedCubeWithoutNormals(Cuboid vector) {
 
-        Tessellator t = Tessellator.instance;
+        Tessellator t = Tessellator.getInstance();
+        VertexBuffer buffer = t.getBuffer();
         boolean wasTesselating = false;
 
         // Check if we were already tessellating
         try {
-            t.startDrawingQuads();
+            buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
         } catch (IllegalStateException e) {
             wasTesselating = true;
         }
 
         // Top side
-        t.addVertex(vector.min.x, vector.max.y, vector.max.z);
-        t.addVertex(vector.max.x, vector.max.y, vector.max.z);
-        t.addVertex(vector.max.x, vector.max.y, vector.min.z);
-        t.addVertex(vector.min.x, vector.max.y, vector.min.z);
+        buffer.pos(vector.min.x, vector.max.y, vector.max.z);
+        buffer.pos(vector.max.x, vector.max.y, vector.max.z);
+        buffer.pos(vector.max.x, vector.max.y, vector.min.z);
+        buffer.pos(vector.min.x, vector.max.y, vector.min.z);
 
         // Bottom side
-        t.addVertex(vector.max.x, vector.min.y, vector.max.z);
-        t.addVertex(vector.min.x, vector.min.y, vector.max.z);
-        t.addVertex(vector.min.x, vector.min.y, vector.min.z);
-        t.addVertex(vector.max.x, vector.min.y, vector.min.z);
+        buffer.pos(vector.max.x, vector.min.y, vector.max.z);
+        buffer.pos(vector.min.x, vector.min.y, vector.max.z);
+        buffer.pos(vector.min.x, vector.min.y, vector.min.z);
+        buffer.pos(vector.max.x, vector.min.y, vector.min.z);
 
         // Draw west side:
-        t.addVertex(vector.min.x, vector.min.y, vector.max.z);
-        t.addVertex(vector.min.x, vector.max.y, vector.max.z);
-        t.addVertex(vector.min.x, vector.max.y, vector.min.z);
-        t.addVertex(vector.min.x, vector.min.y, vector.min.z);
+        buffer.pos(vector.min.x, vector.min.y, vector.max.z);
+        buffer.pos(vector.min.x, vector.max.y, vector.max.z);
+        buffer.pos(vector.min.x, vector.max.y, vector.min.z);
+        buffer.pos(vector.min.x, vector.min.y, vector.min.z);
 
         // Draw east side:
-        t.addVertex(vector.max.x, vector.min.y, vector.min.z);
-        t.addVertex(vector.max.x, vector.max.y, vector.min.z);
-        t.addVertex(vector.max.x, vector.max.y, vector.max.z);
-        t.addVertex(vector.max.x, vector.min.y, vector.max.z);
+        buffer.pos(vector.max.x, vector.min.y, vector.min.z);
+        buffer.pos(vector.max.x, vector.max.y, vector.min.z);
+        buffer.pos(vector.max.x, vector.max.y, vector.max.z);
+        buffer.pos(vector.max.x, vector.min.y, vector.max.z);
 
         // Draw north side
-        t.addVertex(vector.min.x, vector.min.y, vector.min.z);
-        t.addVertex(vector.min.x, vector.max.y, vector.min.z);
-        t.addVertex(vector.max.x, vector.max.y, vector.min.z);
-        t.addVertex(vector.max.x, vector.min.y, vector.min.z);
+        buffer.pos(vector.min.x, vector.min.y, vector.min.z);
+        buffer.pos(vector.min.x, vector.max.y, vector.min.z);
+        buffer.pos(vector.max.x, vector.max.y, vector.min.z);
+        buffer.pos(vector.max.x, vector.min.y, vector.min.z);
 
         // Draw south side
-        t.addVertex(vector.min.x, vector.min.y, vector.max.z);
-        t.addVertex(vector.max.x, vector.min.y, vector.max.z);
-        t.addVertex(vector.max.x, vector.max.y, vector.max.z);
-        t.addVertex(vector.min.x, vector.max.y, vector.max.z);
+        buffer.pos(vector.min.x, vector.min.y, vector.max.z);
+        buffer.pos(vector.max.x, vector.min.y, vector.max.z);
+        buffer.pos(vector.max.x, vector.max.y, vector.max.z);
+        buffer.pos(vector.min.x, vector.max.y, vector.max.z);
 
         if (!wasTesselating) {
             t.draw();

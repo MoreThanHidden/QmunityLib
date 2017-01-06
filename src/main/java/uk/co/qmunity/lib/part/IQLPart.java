@@ -1,24 +1,24 @@
 package uk.co.qmunity.lib.part;
 
-import java.util.List;
-import java.util.Random;
-
-import net.minecraft.client.particle.EffectRenderer;
+import net.minecraft.client.particle.ParticleManager;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.IIcon;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import uk.co.qmunity.lib.client.render.RenderContext;
 import uk.co.qmunity.lib.model.IVertexConsumer;
 import uk.co.qmunity.lib.network.MCByteBuf;
-import uk.co.qmunity.lib.raytrace.QMovingObjectPosition;
+import uk.co.qmunity.lib.raytrace.QRayTraceResult;
 import uk.co.qmunity.lib.util.ISyncable;
 import uk.co.qmunity.lib.vec.Cuboid;
 import uk.co.qmunity.lib.vec.IWorldLocation;
 import uk.co.qmunity.lib.vec.Vector3;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+
+import java.util.List;
+import java.util.Random;
 
 public interface IQLPart extends IWorldLocation, ISyncable {
 
@@ -56,9 +56,9 @@ public interface IQLPart extends IWorldLocation, ISyncable {
     public void renderDynamic(Vector3 translation, int pass, float frame);
 
     @SideOnly(Side.CLIENT)
-    public boolean renderBreaking(RenderContext context, IVertexConsumer consumer, QMovingObjectPosition hit, IIcon overrideIcon);
+    public boolean renderBreaking(RenderContext context, IVertexConsumer consumer, QRayTraceResult hit, TextureAtlasSprite overrideIcon);
 
-    public boolean drawHighlight(QMovingObjectPosition hit, EntityPlayer player, float partialTicks);
+    public boolean drawHighlight(QRayTraceResult hit, EntityPlayer player, float partialTicks);
 
     @SideOnly(Side.CLIENT)
     public Cuboid getRenderBounds();
@@ -66,10 +66,10 @@ public interface IQLPart extends IWorldLocation, ISyncable {
     // Misc rendering
 
     @SideOnly(Side.CLIENT)
-    public void addDestroyEffects(QMovingObjectPosition hit, EffectRenderer effectRenderer);
+    public void addDestroyEffects(QRayTraceResult hit, ParticleManager effectRenderer);
 
     @SideOnly(Side.CLIENT)
-    public void addHitEffects(QMovingObjectPosition hit, EffectRenderer effectRenderer);
+    public void addHitEffects(QRayTraceResult hit, ParticleManager effectRenderer);
 
     // Collision/selection
 
@@ -79,25 +79,25 @@ public interface IQLPart extends IWorldLocation, ISyncable {
 
     public boolean occlusionTest(IQLPart part);
 
-    public QMovingObjectPosition rayTrace(Vec3 start, Vec3 end);
+    public QRayTraceResult rayTrace(Vec3d start, Vec3d end);
 
     // Misc
 
     public int getLightValue();
 
-    public ItemStack getPickBlock(EntityPlayer player, QMovingObjectPosition hit);
+    public ItemStack getPickBlock(EntityPlayer player, QRayTraceResult hit);
 
     public List<ItemStack> getDrops();
 
-    public void harvest(EntityPlayer player, QMovingObjectPosition hit);
+    public void harvest(EntityPlayer player, QRayTraceResult hit);
 
-    public float getHardness(EntityPlayer player, QMovingObjectPosition hit);
+    public float getHardness(EntityPlayer player, QRayTraceResult hit);
 
     // Events
 
-    public boolean onActivated(EntityPlayer player, QMovingObjectPosition hit, ItemStack item);
+    public boolean onActivated(EntityPlayer player, QRayTraceResult hit, ItemStack item);
 
-    public void onClicked(EntityPlayer player, QMovingObjectPosition hit, ItemStack item);
+    public void onClicked(EntityPlayer player, QRayTraceResult hit, ItemStack item);
 
     public void update();
 

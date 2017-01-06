@@ -1,6 +1,6 @@
 package uk.co.qmunity.lib.part;
 
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraft.util.EnumFacing;
 
 public enum PartSlot {
     DOWN, UP, WEST, EAST, NORTH, SOUTH, //
@@ -17,12 +17,12 @@ public enum PartSlot {
         this.mask = 1 << ordinal();
     }
 
-    public static PartSlot face(ForgeDirection face) {
+    public static PartSlot face(EnumFacing face) {
 
         return values()[face.ordinal()];
     }
 
-    public static PartSlot edgeBetween(ForgeDirection side1, ForgeDirection side2) {
+    public static PartSlot edgeBetween(EnumFacing side1, EnumFacing side2) {
 
         if (side2.ordinal() < side1.ordinal())
             return edgeBetween(side2, side1);

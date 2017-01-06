@@ -1,15 +1,9 @@
 package uk.co.qmunity.lib.util;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModAPIManager;
 
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.ModAPIManager;
+import java.util.*;
 
 public class ModularRegistry<T> implements Iterable<T> {
 

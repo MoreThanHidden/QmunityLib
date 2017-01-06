@@ -1,18 +1,18 @@
 package uk.co.qmunity.lib.item;
 
-import java.util.List;
-
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import uk.co.qmunity.lib.QLModInfo;
 import uk.co.qmunity.lib.QmunityLib;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+
+import java.util.List;
 
 public abstract class QLItemBlockBase extends ItemBlock {
 
@@ -26,7 +26,7 @@ public abstract class QLItemBlockBase extends ItemBlock {
         super(block);
 
         setUnlocalizedName(name);
-        setTextureName(getModId() + ":" + name);
+        setRegistryName(getModId() + ":" + name);
     }
 
     protected abstract String getModId();
@@ -40,7 +40,7 @@ public abstract class QLItemBlockBase extends ItemBlock {
     @SideOnly(Side.CLIENT)
     protected void addTipInformation(ItemStack stack, EntityPlayer player, List l, String tip) {
 
-        l.addAll(Minecraft.getMinecraft().fontRenderer.listFormattedStringToWidth(tip, 35));
+        l.addAll(Minecraft.getMinecraft().fontRendererObj.listFormattedStringToWidth(tip, 35));
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -53,9 +53,9 @@ public abstract class QLItemBlockBase extends ItemBlock {
             return;
 
         if (!QmunityLib.proxy.isShiftDown()) {
-            l.add(I18n.format("tooltip." + QLModInfo.MODID + ":shift", EnumChatFormatting.GRAY.toString(),
-                    EnumChatFormatting.YELLOW.toString() + EnumChatFormatting.ITALIC.toString(), EnumChatFormatting.RESET.toString()
-                            + EnumChatFormatting.GRAY.toString()));
+            l.add(I18n.format("tooltip." + QLModInfo.MODID + ":shift", TextFormatting.GRAY.toString(),
+                    TextFormatting.YELLOW.toString() + TextFormatting.ITALIC.toString(), TextFormatting.RESET.toString()
+                            + TextFormatting.GRAY.toString()));
         } else {
             addTipInformation(stack, player, l, localized);
         }

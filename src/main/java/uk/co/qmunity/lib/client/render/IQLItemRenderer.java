@@ -1,14 +1,14 @@
 package uk.co.qmunity.lib.client.render;
 
+import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.client.IItemRenderer.ItemRenderType;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import uk.co.qmunity.lib.model.IVertexConsumer;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public interface IQLItemRenderer {
 
     @SideOnly(Side.CLIENT)
-    public void renderItem(ItemStack stack, ItemRenderType type, RenderContext context, IVertexConsumer consumer);
+    public void renderItem(ItemStack stack, ItemRenderer type, RenderContext context, IVertexConsumer consumer);
 
 }

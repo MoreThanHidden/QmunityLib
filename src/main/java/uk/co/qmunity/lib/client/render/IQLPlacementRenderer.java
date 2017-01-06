@@ -1,9 +1,9 @@
 package uk.co.qmunity.lib.client.render;
 
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import uk.co.qmunity.lib.model.IVertexConsumer;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public interface IQLPlacementRenderer {
 

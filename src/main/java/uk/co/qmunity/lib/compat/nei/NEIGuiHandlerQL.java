@@ -1,19 +1,7 @@
 package uk.co.qmunity.lib.compat.nei;
 
-import java.awt.Rectangle;
-import java.util.List;
-
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemStack;
-import uk.co.qmunity.lib.client.gui.widget.IGuiWidget;
-import uk.co.qmunity.lib.client.gui.widget.IWidgetContainer;
-import uk.co.qmunity.lib.client.gui.widget.tab.WidgetTab;
-import uk.co.qmunity.lib.inventory.slot.ISlotPhantom;
-import codechicken.nei.VisiblityData;
-import codechicken.nei.api.INEIGuiHandler;
-import codechicken.nei.api.TaggedInventoryArea;
-
+/*
+Not Updated to 1.11
 public class NEIGuiHandlerQL implements INEIGuiHandler {
 
     @Override
@@ -111,4 +99,4 @@ public class NEIGuiHandlerQL implements INEIGuiHandler {
 
         return false;
     }
-}
+}*/

@@ -1,8 +1,10 @@
 package uk.co.qmunity.lib.part;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraft.util.EnumFacing;
 import uk.co.qmunity.lib.QLBlocks;
 import uk.co.qmunity.lib.block.BlockMultipart;
 import uk.co.qmunity.lib.helper.RedstoneHelper.IQLRedstoneProvider;
@@ -18,40 +20,39 @@ public class MultipartSystemStandalone implements IMultipartSystem, IQLRedstoneP
     }
 
     @Override
-    public boolean canAddPart(World world, int x, int y, int z, IQLPart part) {
+    public boolean canAddPart(World world, BlockPos pos, IQLPart part) {
 
         for (Cuboid c : part.getCollisionBoxes())
-            if (!world.checkNoEntityCollision(c.toAABB().offset(x, y, z)))
+            if (!world.checkNoEntityCollision(c.toAABB().offset(pos)))
                 return false;
 
-        TileMultipart te = BlockMultipart.findTile(world, x, y, z);
+        TileMultipart te = BlockMultipart.findTile(world, pos);
         if (te != null)
             return te.canAddPart(part);
 
-        Block block = world.getBlock(x, y, z);
-        return block.isAir(world, x, y, z) || block.isReplaceable(world, x, y, z);
+        IBlockState state = world.getBlockState(pos);
+        Block block = state.getBlock();
+        return block.isAir(state, world, pos) || block.isReplaceable(world, pos);
     }
 
     @Override
-    public void addPart(World world, int x, int y, int z, IQLPart part) {
+    public void addPart(World world, BlockPos pos, IQLPart part) {
 
-        addPart(world, x, y, z, part, null);
+        addPart(world, pos, part, null);
     }
 
     @Override
-    public void addPart(World world, int x, int y, int z, IQLPart part, String partID) {
+    public void addPart(World world, BlockPos pos, IQLPart part, String partID) {
 
-        TileMultipart te = BlockMultipart.findTile(world, x, y, z);
+        TileMultipart te = BlockMultipart.findTile(world, pos);
 
         if (te == null) {
             te = new TileMultipart();
-            te.setWorldObj(world);
-            te.xCoord = x;
-            te.yCoord = y;
-            te.zCoord = z;
+            te.setWorld(world);
+            te.setPos(pos);
 
-            world.setBlock(x, y, z, QLBlocks.multipart);
-            world.setTileEntity(x, y, z, te);
+            world.setBlockState(pos, QLBlocks.multipart.getDefaultState());
+            world.setTileEntity(pos, te);
             te.firstTick = false;
         }
 
@@ -62,39 +63,39 @@ public class MultipartSystemStandalone implements IMultipartSystem, IQLRedstoneP
     }
 
     @Override
-    public TileMultipart getHolder(World world, int x, int y, int z) {
+    public TileMultipart getHolder(World world, BlockPos pos) {
 
-        return BlockMultipart.findTile(world, x, y, z);
+        return BlockMultipart.findTile(world, pos);
     }
 
     @Override
-    public boolean canProvideRedstoneFor(World world, int x, int y, int z) {
+    public boolean canProvideRedstoneFor(World world, BlockPos pos) {
 
-        return getHolder(world, x, y, z) != null;
+        return getHolder(world, pos) != null;
     }
 
     @Override
-    public boolean canConnectRedstone(World world, int x, int y, int z, ForgeDirection face, ForgeDirection side) {
+    public boolean canConnectRedstone(World world, BlockPos pos, EnumFacing face, EnumFacing side) {
 
-        TileMultipart te = getHolder(world, x, y, z);
+        TileMultipart te = getHolder(world, pos);
         if (te != null)
             return te.canConnectRedstone(face, side);
         return false;
     }
 
     @Override
-    public int getWeakRedstoneOutput(World world, int x, int y, int z, ForgeDirection face, ForgeDirection side) {
+    public int getWeakRedstoneOutput(World world, BlockPos pos, EnumFacing face, EnumFacing side) {
 
-        TileMultipart te = getHolder(world, x, y, z);
+        TileMultipart te = getHolder(world, pos);
         if (te != null)
             return te.getWeakRedstoneOutput(face, side);
         return 0;
     }
 
     @Override
-    public int getStrongRedstoneOutput(World world, int x, int y, int z, ForgeDirection face, ForgeDirection side) {
+    public int getStrongRedstoneOutput(World world, BlockPos pos, EnumFacing face, EnumFacing side) {
 
-        TileMultipart te = getHolder(world, x, y, z);
+        TileMultipart te = getHolder(world, pos);
         if (te != null)
             return te.getStrongRedstoneOutput(face, side);
         return 0;

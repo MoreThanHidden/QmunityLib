@@ -1,11 +1,11 @@
 package uk.co.qmunity.lib.util;
 
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraft.util.EnumFacing;
 
 public interface IFace {
 
-    public void setFace(ForgeDirection dir);
+    public void setFace(EnumFacing dir);
 
-    public ForgeDirection getFace();
+    public EnumFacing getFace();
 
 }

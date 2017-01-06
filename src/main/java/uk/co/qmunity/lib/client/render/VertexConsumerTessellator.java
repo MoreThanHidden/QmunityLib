@@ -21,21 +21,21 @@ public class VertexConsumerTessellator implements IVertexConsumer {
         Vertex[] vertices = transformed.getVertices();
         for (Vertex v : vertices) {
             if (context.useNormals())
-                Tessellator.instance.setNormal((float) v.normal.x, (float) v.normal.y, (float) v.normal.z);
+                Tessellator.getInstance().getBuffer().normal((float) v.normal.x, (float) v.normal.y, (float) v.normal.z);
 
             if (context.useColors())
-                Tessellator.instance.setColorRGBA_F((float) v.color.x, (float) v.color.y, (float) v.color.z,
+                Tessellator.getInstance().getBuffer().color((float) v.color.x, (float) v.color.y, (float) v.color.z,
                         overrideAlpha != -1 ? overrideAlpha : (float) v.color.s);
             else if (overrideAlpha != -1)
-                Tessellator.instance.setColorRGBA_F(1, 1, 1, overrideAlpha);
+                Tessellator.getInstance().getBuffer().color(1, 1, 1, overrideAlpha);
 
             if (context.useLighting())
-                Tessellator.instance.setBrightness(v.brightness);
+                Tessellator.getInstance().getBuffer().putBrightness4(v.brightness, v.brightness, v.brightness, v.brightness);
 
             if (context.useTextures())
-                Tessellator.instance.setTextureUV(v.uv.u, v.uv.v);
+                Tessellator.getInstance().getBuffer().tex(v.uv.u, v.uv.v);
 
-            Tessellator.instance.addVertex(v.position.x, v.position.y, v.position.z);
+            Tessellator.getInstance().getBuffer().pos(v.position.x, v.position.y, v.position.z).endVertex();
         }
         return vertices.length > 0;
     }

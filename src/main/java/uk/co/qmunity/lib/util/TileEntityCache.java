@@ -1,19 +1,20 @@
 package uk.co.qmunity.lib.util;
 
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class TileEntityCache extends LocationCache<TileEntity> {
 
-    public TileEntityCache(World world, int x, int y, int z) {
+    public TileEntityCache(World world, BlockPos pos) {
 
-        super(world, x, y, z);
+        super(world, pos);
     }
 
     @Override
-    protected TileEntity getNewValue(World world, int x, int y, int z, Object... extraArgs) {
+    protected TileEntity getNewValue(World world, BlockPos pos, Object... extraArgs) {
 
-        return world.getTileEntity(x, y, z);
+        return world.getTileEntity(pos);
     }
 
 }

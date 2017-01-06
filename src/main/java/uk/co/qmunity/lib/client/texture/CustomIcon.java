@@ -1,15 +1,17 @@
 package uk.co.qmunity.lib.client.texture;
 
-import net.minecraft.util.IIcon;
 
-public class CustomIcon implements IIcon {
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
-    public static final IIcon FULL_ICON = new CustomIcon(0, 0, 1, 1, 16, 16);
+public class CustomIcon extends TextureAtlasSprite {
+
+    public static final TextureAtlasSprite FULL_ICON = new CustomIcon(0, 0, 1, 1, 16, 16);
 
     private final float minU, minV, maxU, maxV;
     private final int width, height;
 
     public CustomIcon(float minU, float minV, float maxU, float maxV, int width, int height) {
+        super("custom");
 
         this.minU = minU;
         this.minV = minV;

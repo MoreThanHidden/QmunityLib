@@ -2,6 +2,7 @@ package uk.co.qmunity.lib.inventory;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -15,13 +16,13 @@ public abstract class QLContainerBase extends Container {
      * @author CovertJaguar <http://www.railcraft.info>
      */
     @Override
-    public ItemStack slotClick(int slotNum, int mouseButton, int modifier, EntityPlayer player) {
+    public ItemStack slotClick(int slotNum, int mouseButton,  ClickType clickTypeIn,  EntityPlayer player) {
 
         Slot slot = slotNum < 0 ? null : (Slot) inventorySlots.get(slotNum);
         if (slot instanceof ISlotPhantom) {
-            return slotClickPhantom(slot, mouseButton, modifier, player);
+            return slotClickPhantom(slot, mouseButton, clickTypeIn, player);
         }
-        return super.slotClick(slotNum, mouseButton, modifier, player);
+        return super.slotClick(slotNum, mouseButton, clickTypeIn, player);
     }
 
     /**
@@ -29,7 +30,7 @@ public abstract class QLContainerBase extends Container {
      *
      * @author CovertJaguar <http://www.railcraft.info>
      */
-    private ItemStack slotClickPhantom(Slot slot, int mouseButton, int modifier, EntityPlayer player) {
+    private ItemStack slotClickPhantom(Slot slot, int mouseButton, ClickType modifier, EntityPlayer player) {
 
         ItemStack stack = null;
 
@@ -53,7 +54,7 @@ public abstract class QLContainerBase extends Container {
                 }
             } else if (stackHeld == null) {
                 adjustPhantomSlot(slot, mouseButton, modifier);
-                slot.onPickupFromSlot(player, playerInv.getItemStack());
+                slot.onSlotChange(stack, playerInv.getItemStack());
             } else if (slot.isItemValid(stackHeld)) {
                 if (canStacksMerge(stackSlot, stackHeld)) {
                     adjustPhantomSlot(slot, mouseButton, modifier);
@@ -87,26 +88,26 @@ public abstract class QLContainerBase extends Container {
      *
      * @author CovertJaguar <http://www.railcraft.info>
      */
-    protected void adjustPhantomSlot(Slot slot, int mouseButton, int modifier) {
+    protected void adjustPhantomSlot(Slot slot, int mouseButton, ClickType modifier) {
 
         if (!((ISlotPhantom) slot).canAdjust()) {
             return;
         }
         ItemStack stackSlot = slot.getStack();
         int stackSize;
-        if (modifier == 1) {
-            stackSize = mouseButton == 0 ? (stackSlot.stackSize + 1) / 2 : stackSlot.stackSize * 2;
+        if (modifier == ClickType.QUICK_MOVE) {
+            stackSize = mouseButton == 0 ? (stackSlot.getCount() + 1) / 2 : stackSlot.getCount() * 2;
         } else {
-            stackSize = mouseButton == 0 ? stackSlot.stackSize - 1 : stackSlot.stackSize + 1;
+            stackSize = mouseButton == 0 ? stackSlot.getCount() - 1 : stackSlot.getCount() + 1;
         }
 
         if (stackSize > slot.getSlotStackLimit()) {
             stackSize = slot.getSlotStackLimit();
         }
 
-        stackSlot.stackSize = stackSize;
+        stackSlot.setCount(stackSize);
 
-        if (stackSlot.stackSize <= 0) {
+        if (stackSlot.getCount() <= 0) {
             slot.putStack((ItemStack) null);
         }
     }
@@ -116,17 +117,17 @@ public abstract class QLContainerBase extends Container {
      *
      * @author CovertJaguar <http://www.railcraft.info>
      */
-    protected void fillPhantomSlot(Slot slot, ItemStack stackHeld, int mouseButton, int modifier) {
+    protected void fillPhantomSlot(Slot slot, ItemStack stackHeld, int mouseButton, ClickType modifier) {
 
         if (!((ISlotPhantom) slot).canAdjust()) {
             return;
         }
-        int stackSize = mouseButton == 0 ? stackHeld.stackSize : 1;
+        int stackSize = mouseButton == 0 ? stackHeld.getCount() : 1;
         if (stackSize > slot.getSlotStackLimit()) {
             stackSize = slot.getSlotStackLimit();
         }
         ItemStack phantomStack = stackHeld.copy();
-        phantomStack.stackSize = stackSize;
+        phantomStack.setCount(stackSize);
 
         slot.putStack(phantomStack);
     }

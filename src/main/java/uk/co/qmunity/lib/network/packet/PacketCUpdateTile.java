@@ -42,7 +42,7 @@ public class PacketCUpdateTile extends LocatedPacket<PacketCUpdateTile> {
     public void fromBytes(MCByteBuf buf) {
 
         super.fromBytes(buf);
-        TileEntity te = QmunityLib.proxy.getWorld().getTileEntity(x, y, z);
+        TileEntity te = QmunityLib.proxy.getWorld().getTileEntity(pos);
         if (te == null || !(te instanceof QLTileBase))
             return;
         tile = (QLTileBase) te;
