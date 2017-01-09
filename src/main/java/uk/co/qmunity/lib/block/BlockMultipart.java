@@ -91,7 +91,7 @@ public class BlockMultipart extends BlockContainer {
         return retrace(worldIn, pos, start, end);
     }
 
-    private QRayTraceResult retrace(World world, BlockPos pos, EntityPlayer player) {
+    public QRayTraceResult retrace(World world, BlockPos pos, EntityPlayer player) {
 
         return retrace(world, pos, RayTracer.getStartVec(player), RayTracer.getEndVec(player));
     }
@@ -108,6 +108,7 @@ public class BlockMultipart extends BlockContainer {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public boolean addDestroyEffects(World world, BlockPos pos, ParticleManager manager) {
         TileMultipart te = findTile(world, pos);
         if (te == null)
@@ -120,6 +121,7 @@ public class BlockMultipart extends BlockContainer {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public boolean addHitEffects(IBlockState state, World world, RayTraceResult target, ParticleManager manager) {
         TileMultipart te = findTile(world, target.getBlockPos());
         if (te == null)

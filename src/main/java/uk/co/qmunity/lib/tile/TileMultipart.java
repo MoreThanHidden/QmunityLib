@@ -156,6 +156,18 @@ public class TileMultipart extends QLTileBase implements IPartHolder {
     }
 
     @Override
+    public List<IMicroblock> getMicroblocks() {
+
+        List<IMicroblock> microblocks = new ArrayList<IMicroblock>();
+
+        for (IQLPart p : getParts())
+            if (p instanceof IMicroblock)
+                microblocks.add((IMicroblock) p);
+
+        return microblocks;
+    }
+
+    @Override
     public String getPartID(IQLPart part) {
 
         for (Entry<String, IQLPart> e : parts.entrySet())

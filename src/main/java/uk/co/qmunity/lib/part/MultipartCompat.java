@@ -70,15 +70,29 @@ public class MultipartCompat {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends IQLPart> T getPart(World world, BlockPos pos, Class<T> clazz) {
+    public static IQLPart getPart(World world, BlockPos pos, Class clazz) {
 
         IPartHolder holder = getHolder(world, pos);
         if (holder == null)
             return null;
         for (IQLPart part : holder.getParts())
             if (clazz.isAssignableFrom(part.getClass()))
-                return (T) part;
+                return part;
         return null;
+    }
+
+    public static List<IMicroblock> getMicroblocks(World world, BlockPos location) {
+        List<IMicroblock> l = new ArrayList<IMicroblock>();
+
+        for (IMultipartSystem s : multipartSystems) {
+            List<IMicroblock> ls = s.getMicroblocks(world, location);
+            if (ls != null)
+                for (IMicroblock m : ls)
+                    if (!l.contains(m))
+                        l.add(m);
+        }
+
+        return l;
     }
 
 }

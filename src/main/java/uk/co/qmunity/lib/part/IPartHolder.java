@@ -1,10 +1,11 @@
 package uk.co.qmunity.lib.part;
 
-import java.util.Collection;
-
 import net.minecraft.block.Block;
 import net.minecraft.util.EnumFacing;
 import uk.co.qmunity.lib.vec.IWorldLocation;
+
+import java.util.Collection;
+import java.util.List;
 
 public interface IPartHolder extends IWorldLocation {
 
@@ -17,6 +18,8 @@ public interface IPartHolder extends IWorldLocation {
     public void removePart(IQLPart part);
 
     public Collection<IQLPart> getParts();
+
+    public List<IMicroblock> getMicroblocks();
 
     public String getPartID(IQLPart part);
 

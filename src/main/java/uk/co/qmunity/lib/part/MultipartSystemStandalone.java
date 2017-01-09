@@ -2,14 +2,17 @@ package uk.co.qmunity.lib.part;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.util.EnumFacing;
 import uk.co.qmunity.lib.QLBlocks;
 import uk.co.qmunity.lib.block.BlockMultipart;
 import uk.co.qmunity.lib.helper.RedstoneHelper.IQLRedstoneProvider;
 import uk.co.qmunity.lib.tile.TileMultipart;
 import uk.co.qmunity.lib.vec.Cuboid;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MultipartSystemStandalone implements IMultipartSystem, IQLRedstoneProvider {
 
@@ -66,6 +69,15 @@ public class MultipartSystemStandalone implements IMultipartSystem, IQLRedstoneP
     public TileMultipart getHolder(World world, BlockPos pos) {
 
         return BlockMultipart.findTile(world, pos);
+    }
+
+    @Override
+    public List<IMicroblock> getMicroblocks(World world, BlockPos pos) {
+        TileMultipart tmp = getHolder(world, pos);
+        if (tmp != null)
+            return tmp.getMicroblocks();
+
+        return new ArrayList<IMicroblock>();
     }
 
     @Override

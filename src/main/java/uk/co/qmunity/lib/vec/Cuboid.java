@@ -129,6 +129,11 @@ public class Cuboid implements Copyable<Cuboid> {
                 + ") -> (" + new BigDecimal(max.x, cont) + ", " + new BigDecimal(max.y, cont) + ", " + new BigDecimal(max.z, cont) + ")";
     }
 
+    public boolean occlusionTest(Cuboid cube) {
+
+        return !toAABB().intersectsWith(cube.toAABB());
+    }
+
     public Cuboid enclose(Vector3 vec) {
 
         if (min.x > vec.x)

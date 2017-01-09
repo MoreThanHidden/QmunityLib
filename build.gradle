@@ -35,7 +35,8 @@ project.ext {
     mcVersion = "1.11"
 }
 
-
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
 version = "${project.ext.major}.${project.minor}"
 group = "uk.co.qmunity.lib"
 archivesBaseName = "QmunityLib"
